@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import About from "./pages/About.jsx";
 import Home from "./pages/Home.jsx";
 import Profile from "./pages/Profile.jsx";
@@ -9,17 +9,15 @@ import Header from "./components/Header.jsx";
 export default function App() {
   return (
     <>
-      <BrowserRouter>
-        <Header />
+      <Header />
 
-        <Routes>
-          <Route path="/" element={<Home />}></Route>
-          <Route path="/sign-in" element={<SignIn />}></Route>
-          <Route path="/sign-out" element={<SignOut />}></Route>
-          <Route path="/about" element={<About />}></Route>
-          <Route path="/profile" element={<Profile />}></Route>
-        </Routes>
-      </BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />}></Route>
+        <Route path="/sign-in" element={<SignIn />}></Route>
+        <Route path="/sign-out" element={<SignOut />}></Route>
+        <Route path="/about" element={<About />}></Route>
+        <Route path="/profile" element={<Profile />}></Route>
+      </Routes>
     </>
   );
 }
