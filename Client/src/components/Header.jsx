@@ -7,13 +7,13 @@ export default function Header() {
       <header className="flex items-center justify-around bg-blue-800 text-white font-bold h-[13vh]">
         <div>
           <Link to="/">
-            <h1 className="lg:text-[2.1rem] sm:text-sm cursor-pointer ">
+            <h1 className="lg:text-[2.1rem] sm:text-xl cursor-pointer ">
               <span className="text-blue-100">House</span>Dreamer
             </h1>
           </Link>
         </div>
 
-        <form className="bg-white w-80 flex justify-between px-6 py-2 items-center rounded-3xl gap-4">
+        <form className="bg-white lg:w-80 sm:w-64 flex justify-between px-6 lg:py-2 sm:py-1 items-center rounded-3xl gap-4">
           <input
             className="placeholder:text-black text-black placeholder:font-normal font-normal w-full focus:outline-none"
             type="search"
@@ -25,12 +25,22 @@ export default function Header() {
           <FaSearch className="text-gray-500" />
         </form>
 
-        <ul className="flex items-center gap-10">
+        <ul className="lg:flex items-center gap-10 sm:hidden ">
           <Link to="/">
-            <li className="lg:inline sm:hidden cursor-pointer">Home</li>
+            <li className="cursor-pointer border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
+              Home
+            </li>
           </Link>
-          <Link to="/About">
-            <li className="lg:inline sm:hidden cursor-pointer">About</li>
+          <Link to="/about">
+            <li className="cursor-pointer border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
+              About
+            </li>
+          </Link>
+
+          <Link to="/sign-in">
+            <li className="cursor-pointer border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
+              Sign In
+            </li>
           </Link>
         </ul>
       </header>
