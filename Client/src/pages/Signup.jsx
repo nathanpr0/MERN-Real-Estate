@@ -33,7 +33,7 @@ export default function SignUp() {
         try {
           setLoading(true);
 
-          await axios.post("http://localhost:3000/api/auth", {
+          await axios.post("http://localhost:3000/api/auth/signup", {
             username: userName,
             email: email,
             password: pw,
@@ -56,12 +56,12 @@ export default function SignUp() {
 
   return (
     <>
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-[80vh] pt-10">
         <form
-          className="w-[60vw] bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+          className="w-[60vw] max-sm:w-[80vw] bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
           onSubmit={handleSubmit}
         >
-          <h2 className="text-center text-2xl font-semibold mb-6">Sign Up</h2>
+          <h2 className="text-center text-2xl font-semibold mb-6">Daftar</h2>
 
           <div className="mb-4">
             <label htmlFor="username" className="block text-gray-700 text-sm font-bold mb-2">
@@ -113,14 +113,14 @@ export default function SignUp() {
               type="submit"
               className="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             >
-              {isLoading ? "Loading..." : "Sign Up"}
+              {isLoading ? "Loading..." : "Daftar"}
             </button>
           </div>
           <div className="flex justify-center items-center mt-4">
             <p>
-              Sudah punya akun?
+              Sudah punya akun? klik
               <Link to={"/sign-in"}>
-                <span className="text-sky-500 hover:text-sky-700"> Sign in</span>
+                <span className="text-sky-500 hover:text-sky-700"> Masuk</span>
               </Link>
             </p>
           </div>

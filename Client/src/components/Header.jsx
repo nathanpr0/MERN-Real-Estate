@@ -44,7 +44,7 @@ export default function Header() {
 
           <Link to="/sign-in">
             <li className="cursor-pointer border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
-              Sign In
+              Masuk
             </li>
           </Link>
         </ul>

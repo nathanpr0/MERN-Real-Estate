@@ -26,6 +26,7 @@ app.use("/api/auth", authRouter);
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode ? err.statusCode : 500;
   res.status(statusCode).json({ Gagal_Diproses: err.message });
+  next(err);
 });
 
 // RUNNING CONNECTION
