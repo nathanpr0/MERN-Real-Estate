@@ -36,7 +36,7 @@ export default class AuthController {
 
         // ACCOUNT IS CREATED
         res
-          .cookie("Access Token", token, process.env.JWT_SECRET, { httpOnly: true })
+          .cookie("Access_Token", token, process.env.JWT_SECRET, { httpOnly: true })
           .status(201)
           .json(data);
         console.log("User Account Created");
@@ -78,7 +78,7 @@ export default class AuthController {
             const { password: pass, ...data } = response._doc;
 
             // RESPONSE KE COOKIE
-            res.cookie("Access Token", token, { httpOnly: true }).status(200).json(data);
+            res.cookie("Access_Token", token, { httpOnly: true }).status(200).json(data);
             console.log(`Berhasil Login`);
         }
       } catch (error) {

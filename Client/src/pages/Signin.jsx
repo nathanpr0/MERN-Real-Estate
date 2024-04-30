@@ -3,54 +3,70 @@ import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+// IMPORT REDUX USER SLICE
+import { useDispatch } from "react-redux";
+import { signInStart, signInSuccess, signInFailure } from "../app/features/userSlice.js";
+
 export default function SignIn() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [isLoading, setLoading] = useState(false);
 
   // FORM STATE VALUE
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [value, setOnChange] = useState({
+    email: "",
+    password: "",
+  });
 
   // SUBMIT TO CREATE AN ACCOUNT
   async function handleSubmit(e) {
     e.preventDefault();
 
     switch (true) {
-      case email === "":
+      case value.email === "":
         toast.info("Harap masukkan alamat Email!");
         return;
 
-      case password === "":
+      case value.password === "":
         toast.info("Jangan lupa masukkan Password!");
         return;
 
       default:
         try {
           setLoading(true);
+          dispatch(signInStart());
 
-          await axios.post("http://localhost:3000/api/auth/signin", {
-            email: email,
-            password: password,
+          const response = await axios.post("http://localhost:3000/api/auth/signin", {
+            email: value.email,
+            password: value.password,
           });
 
           toast.success("Account Successfully Log In");
+          dispatch(signInSuccess(response.data));
           setLoading(false);
+
           navigate("/");
         } catch (error) {
           setLoading(false);
+
           if (error.response && error.response.status === 404) {
+            dispatch(signInFailure(error.response.data));
             const {
               error: errorMessage,
               status: errorStatus,
               email: errorEmail,
             } = error.response.data;
+
             toast.error(errorMessage);
             toast.error("status: " + errorStatus);
             toast.error(errorEmail);
           } else if (error.response && error.response.status === 401) {
+            dispatch(signInFailure(error.response.data));
+
             const { error: errorMessage } = error.response.data;
             toast.error(errorMessage);
           } else {
+            dispatch(signInFailure(error.message));
             toast.error(error.message);
           }
         }
@@ -76,11 +92,12 @@ export default function SignIn() {
               name="email"
               placeholder="Masukkan alamat email"
               autoComplete="off"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={value.email}
+              onChange={(e) => setOnChange({ ...value, email: e.target.value })}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
           </div>
+
           <div className="mb-6">
             <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
               Password
@@ -91,11 +108,12 @@ export default function SignIn() {
               name="password"
               placeholder="Masukkan password anda"
               autoComplete="off"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={value.password}
+              onChange={(e) => setOnChange({ ...value, password: e.target.value })}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
           </div>
+
           <div className="flex items-center justify-center">
             <button
               type="submit"
@@ -104,6 +122,7 @@ export default function SignIn() {
               {isLoading ? "Loading..." : "Masuk"}
             </button>
           </div>
+
           <div className="flex justify-center items-center mt-4">
             <p>
               Belum punya Akun? klik

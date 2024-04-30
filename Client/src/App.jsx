@@ -24,7 +24,7 @@ export default function App() {
         <Route path="/about" element={<About />}></Route>
         <Route path="/profile" element={<Profile />}></Route>
       </Routes>
-      <ToastContainer />
+      <ToastContainer position="bottom-right" />
     </>
   );
 }
