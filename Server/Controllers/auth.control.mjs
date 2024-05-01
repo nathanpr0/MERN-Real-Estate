@@ -88,4 +88,58 @@ export default class AuthController {
       }
     });
   }
+
+  static google() {
+    return asyncHandler(async (req, res) => {
+      try {
+        const { username, email } = req.body;
+        const existingUser = await UserModel.findOne({
+          email: email,
+        });
+
+        // JIKA USER PERNAH MENDAFTAR DENGAN AKUN GOOGLE SEBELUMNYA LANGSUNG DI BERIKAN TOKEN
+        if (existingUser) {
+          // CREATE TOKEN
+          const token = jwt.sign({ id: existingUser._id }, process.env.JWT_SECRET, {
+            expiresIn: "1h",
+          });
+
+          // RESPONSE FROM SERVER TO CLIENT
+          const { password: pass, ...data } = existingUser._doc;
+          res.cookie("Access_Token", token, { httpOnly: true }).status(200).json(data);
+          console.log("Akun Google berhasil di Autentikasi");
+          return;
+        }
+        // JIKA USER BELUM MENDAFTAR , LANGSUNG DI DAFTARKAN KE DATABASE DAN MEMBUAT TOKEN
+        else {
+          // RANDOM PASSWORD FOR GOOGLE ACCOUNT
+          const generatedPassword =
+            Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+          const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+
+          // SIGN UP USER ACCOUNT USING GOOGLE ACCOUNT TO DATABASE
+          const response = await UserModel.create({
+            username: username.split(" ").join("").toLowerCase(),
+            email: email,
+            password: hashedPassword,
+            avatar: req.body.photo,
+          });
+
+          // CREATE TOKEN
+          const token = jwt.sign({ id: response._id }, process.env.JWT_SECRET, {
+            expiresIn: "1h",
+          });
+
+          // RESPONSE FROM SERVER TO CLIENT
+          const { password: pass, ...data } = response._doc;
+          res.cookie("Access_Token", token, { httpOnly: true }).status(200).json(data);
+          console.log("Akun Google berhasil di Autentikasi");
+          return;
+        }
+      } catch (error) {
+        res.status(500);
+        throw new Error(error.message);
+      }
+    });
+  }
 }

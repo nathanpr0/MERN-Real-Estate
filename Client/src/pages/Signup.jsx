@@ -3,51 +3,66 @@ import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+// IMPORT REDUX USER SLICE
+import { useDispatch } from "react-redux";
+import { signStart, signSuccess, signFailure } from "../app/features/userSlice.js";
+
+// IMPORT GOOGLE AUTH COMPONENT
+import OAuth from "../components/OAuth.jsx";
+
 export default function SignUp() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isLoading, setLoading] = useState(false);
 
   // FORM STATE VALUE
-  const [userName, userNameValue] = useState("");
-  const [email, emailValue] = useState("");
-  const [pw, pwValue] = useState("");
+  const [value, setOnChange] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
 
   // SUBMIT TO CREATE AN ACCOUNT
   async function handleSubmit(e) {
     e.preventDefault();
 
     switch (true) {
-      case userName === "":
+      case value["username"] === "":
         toast.info("Harap masukkan Username!");
         return;
 
-      case email === "":
+      case value["email"] === "":
         toast.info("Harap masukkan alamat Email!");
         return;
 
-      case pw === "":
+      case value["password"] === "":
         toast.info("Jangan lupa masukkan Password!");
         return;
 
       default:
         try {
           setLoading(true);
+          dispatch(signStart());
 
-          await axios.post("http://localhost:3000/api/auth/signup", {
-            username: userName,
-            email: email,
-            password: pw,
+          const response = await axios.post(import.meta.env.VITE_SIGN_UP_API, {
+            username: value.username,
+            email: value.email,
+            password: value.password,
           });
 
+          dispatch(signSuccess(response.data));
           toast.success("Account Successfully Created");
           setLoading(false);
+
           navigate("/");
         } catch (error) {
           setLoading(false);
           if (error.response && error.response.status === 409) {
+            dispatch(signFailure(error.response.data));
             const { error: errorMessage } = error.response.data;
             toast.error(errorMessage);
           } else {
+            dispatch(signFailure(error.message));
             toast.error(error.message);
           }
         }
@@ -56,7 +71,7 @@ export default function SignUp() {
 
   return (
     <>
-      <div className="flex justify-center items-center h-[80vh] pt-10">
+      <div className="flex justify-center items-center h-screen py-10">
         <form
           className="w-[60vw] max-sm:w-[80vw] bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
           onSubmit={handleSubmit}
@@ -73,8 +88,8 @@ export default function SignUp() {
               name="username"
               placeholder="Masukkan username"
               autoComplete="off"
-              value={userName}
-              onChange={(e) => userNameValue(e.target.value)}
+              value={value["username"]}
+              onChange={(e) => setOnChange({ ...value, username: e.target.value })}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
           </div>
@@ -88,8 +103,8 @@ export default function SignUp() {
               name="email"
               placeholder="Masukkan alamat email"
               autoComplete="off"
-              value={email}
-              onChange={(e) => emailValue(e.target.value)}
+              value={value["email"]}
+              onChange={(e) => setOnChange({ ...value, email: e.target.value })}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
           </div>
@@ -103,8 +118,8 @@ export default function SignUp() {
               name="password"
               placeholder="Masukkan password anda"
               autoComplete="off"
-              value={pw}
-              onChange={(e) => pwValue(e.target.value)}
+              value={value["password"]}
+              onChange={(e) => setOnChange({ ...value, password: e.target.value })}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
           </div>
@@ -116,7 +131,9 @@ export default function SignUp() {
               {isLoading ? "Loading..." : "Daftar"}
             </button>
           </div>
-          <div className="flex justify-center items-center mt-4">
+          <OAuth />
+
+          <div className="flex justify-center items-center mt-6">
             <p>
               Sudah punya akun? klik
               <Link to={"/sign-in"}>

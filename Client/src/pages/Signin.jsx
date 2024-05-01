@@ -5,7 +5,10 @@ import { toast } from "react-toastify";
 
 // IMPORT REDUX USER SLICE
 import { useDispatch } from "react-redux";
-import { signInStart, signInSuccess, signInFailure } from "../app/features/userSlice.js";
+import { signStart, signSuccess, signFailure } from "../app/features/userSlice.js";
+
+// IMPORT GOOGLE AUTH COMPONENT
+import OAuth from "../components/OAuth.jsx";
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -34,15 +37,15 @@ export default function SignIn() {
       default:
         try {
           setLoading(true);
-          dispatch(signInStart());
+          dispatch(signStart());
 
-          const response = await axios.post("http://localhost:3000/api/auth/signin", {
+          const response = await axios.post(import.meta.env.VITE_SIGN_IN_API, {
             email: value.email,
             password: value.password,
           });
 
           toast.success("Account Successfully Log In");
-          dispatch(signInSuccess(response.data));
+          dispatch(signSuccess(response.data));
           setLoading(false);
 
           navigate("/");
@@ -50,7 +53,7 @@ export default function SignIn() {
           setLoading(false);
 
           if (error.response && error.response.status === 404) {
-            dispatch(signInFailure(error.response.data));
+            dispatch(signFailure(error.response.data));
             const {
               error: errorMessage,
               status: errorStatus,
@@ -61,12 +64,12 @@ export default function SignIn() {
             toast.error("status: " + errorStatus);
             toast.error(errorEmail);
           } else if (error.response && error.response.status === 401) {
-            dispatch(signInFailure(error.response.data));
+            dispatch(signFailure(error.response.data));
 
             const { error: errorMessage } = error.response.data;
             toast.error(errorMessage);
           } else {
-            dispatch(signInFailure(error.message));
+            dispatch(signFailure(error.message));
             toast.error(error.message);
           }
         }
@@ -122,8 +125,9 @@ export default function SignIn() {
               {isLoading ? "Loading..." : "Masuk"}
             </button>
           </div>
+          <OAuth />
 
-          <div className="flex justify-center items-center mt-4">
+          <div className="flex justify-center items-center mt-6">
             <p>
               Belum punya Akun? klik
               <Link to={"/sign-up"}>

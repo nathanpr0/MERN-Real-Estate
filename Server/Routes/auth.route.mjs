@@ -8,4 +8,7 @@ authRouter.post("/signup", AuthController.signUp());
 // LOGIN ACCOUNT
 authRouter.post("/signin", AuthController.signIn());
 
+// GOOGLE ACCOUNT
+authRouter.post("/google", AuthController.google());
+
 export default authRouter;
