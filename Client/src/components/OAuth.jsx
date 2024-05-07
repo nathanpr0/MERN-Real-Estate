@@ -21,11 +21,15 @@ export default function OAuth() {
       const result = await signInWithPopup(auth, provider);
       const { displayName, email, photoURL } = result.user;
 
-      const response = await axios.post(import.meta.env.VITE_GOOGLE_AUTH, {
-        username: displayName,
-        email: email,
-        photo: photoURL,
-      });
+      const response = await axios.post(
+        import.meta.env.VITE_GOOGLE_AUTH,
+        {
+          username: displayName,
+          email: email,
+          avatar: photoURL,
+        },
+        { withCredentials: true }
+      );
 
       toast.success("Account Successfully Log In");
       dispatch(signSuccess(response.data));

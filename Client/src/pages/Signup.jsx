@@ -44,11 +44,15 @@ export default function SignUp() {
           setLoading(true);
           dispatch(signStart());
 
-          const response = await axios.post(import.meta.env.VITE_SIGN_UP_API, {
-            username: value.username,
-            email: value.email,
-            password: value.password,
-          });
+          const response = await axios.post(
+            import.meta.env.VITE_SIGN_UP_API,
+            {
+              username: value.username,
+              email: value.email,
+              password: value.password,
+            },
+            { withCredentials: true }
+          );
 
           dispatch(signSuccess(response.data));
           toast.success("Account Successfully Created");

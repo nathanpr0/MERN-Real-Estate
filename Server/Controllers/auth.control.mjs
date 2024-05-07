@@ -28,18 +28,14 @@ export default class AuthController {
         const response = await UserModel.create({ ...req.body, password: hashedPassword });
 
         // CREATING COOKIE TOKEN
-        const token = jwt.sign({ id: response._id }, process.env.JWT_SECRET, {
-          expiresIn: "1h",
-        });
+        const token = jwt.sign({ id: response._id }, process.env.JWT_SECRET, { expiresIn: "30d" });
         // DESTRUCTING PROPERTY PASSWORD UNTUK TIDAK MENGEKSPOS PASSWORD
         const { password: pass, ...data } = response._doc;
-
         // ACCOUNT IS CREATED
-        res
-          .cookie("Access_Token", token, process.env.JWT_SECRET, { httpOnly: true })
-          .status(201)
-          .json(data);
+        res.cookie("Access_Token", token, { httpOnly: true }).status(201).json(data);
         console.log("User Account Created");
+
+        return;
       } catch (error) {
         console.error("Failed to create user account");
         res.status(500);
@@ -60,6 +56,7 @@ export default class AuthController {
             status: 404,
             email: `${email} NOT FOUND!`,
           });
+
           return;
         }
 
@@ -72,18 +69,39 @@ export default class AuthController {
           default:
             // CREATING COOKIE TOKEN
             const token = jwt.sign({ id: response._id }, process.env.JWT_SECRET, {
-              expiresIn: "1h",
+              expiresIn: "30d",
             });
             // DESTRUCTING PROPERTY PASSWORD UNTUK TIDAK MENGEKSPOS PASSWORD
             const { password: pass, ...data } = response._doc;
 
             // RESPONSE KE COOKIE
-            res.cookie("Access_Token", token, { httpOnly: true }).status(200).json(data);
+            res
+              .cookie("Access_Token", token, {
+                httpOnly: true,
+              })
+              .status(201)
+              .json(data);
             console.log(`Berhasil Login`);
+
+            return;
         }
       } catch (error) {
         console.error("Failed to SignIn user Account!");
         res.status(500);
+        throw new Error(error.message);
+      }
+    });
+  }
+
+  static signOut() {
+    return asyncHandler(async (req, res) => {
+      try {
+        res.clearCookie("Access_Token");
+        res.status(200).json({ user: "User has been Logged Out!" });
+        console.log("Akun Berhasil Logged Out");
+
+        return;
+      } catch (error) {
         throw new Error(error.message);
       }
     });
@@ -101,13 +119,19 @@ export default class AuthController {
         if (existingUser) {
           // CREATE TOKEN
           const token = jwt.sign({ id: existingUser._id }, process.env.JWT_SECRET, {
-            expiresIn: "1h",
+            expiresIn: "30d",
           });
 
           // RESPONSE FROM SERVER TO CLIENT
           const { password: pass, ...data } = existingUser._doc;
-          res.cookie("Access_Token", token, { httpOnly: true }).status(200).json(data);
+          res
+            .cookie("Access_Token", token, {
+              httpOnly: true,
+            })
+            .status(201)
+            .json(data);
           console.log("Akun Google berhasil di Autentikasi");
+
           return;
         }
         // JIKA USER BELUM MENDAFTAR , LANGSUNG DI DAFTARKAN KE DATABASE DAN MEMBUAT TOKEN
@@ -122,18 +146,19 @@ export default class AuthController {
             username: username.split(" ").join("").toLowerCase(),
             email: email,
             password: hashedPassword,
-            avatar: req.body.photo,
+            avatar: req.body.avatar,
           });
 
           // CREATE TOKEN
           const token = jwt.sign({ id: response._id }, process.env.JWT_SECRET, {
-            expiresIn: "1h",
+            expiresIn: "30d",
           });
 
           // RESPONSE FROM SERVER TO CLIENT
           const { password: pass, ...data } = response._doc;
           res.cookie("Access_Token", token, { httpOnly: true }).status(200).json(data);
           console.log("Akun Google berhasil di Autentikasi");
+
           return;
         }
       } catch (error) {

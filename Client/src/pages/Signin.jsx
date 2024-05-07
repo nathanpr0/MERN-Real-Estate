@@ -39,10 +39,14 @@ export default function SignIn() {
           setLoading(true);
           dispatch(signStart());
 
-          const response = await axios.post(import.meta.env.VITE_SIGN_IN_API, {
-            email: value.email,
-            password: value.password,
-          });
+          const response = await axios.post(
+            import.meta.env.VITE_SIGN_IN_API,
+            {
+              email: value.email,
+              password: value.password,
+            },
+            { withCredentials: true }
+          );
 
           toast.success("Account Successfully Log In");
           dispatch(signSuccess(response.data));
@@ -68,9 +72,11 @@ export default function SignIn() {
 
             const { error: errorMessage } = error.response.data;
             toast.error(errorMessage);
+            return;
           } else {
             dispatch(signFailure(error.message));
             toast.error(error.message);
+            return;
           }
         }
     }
