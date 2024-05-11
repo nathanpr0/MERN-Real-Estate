@@ -6,8 +6,6 @@ import { toast } from "react-toastify";
 // IMPORT FIREBASE STORAGE
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { app } from "../firebase.js";
-import UserProfile from "../components/UserProfile.jsx";
-import isValidURL from "validator/lib/isURL";
 
 // IMPORT REDUX SLICE
 import { useDispatch, useSelector } from "react-redux";
@@ -23,19 +21,13 @@ import {
   deleteUserFailure,
 } from "../app/features/userSlice.js";
 
+// COMPONENTS
+import UserProfile from "../components/UserProfile.jsx";
+import Listing from "../components/Listing.jsx";
+
 export default function Profile() {
   // PROFILE INFORMATION
   const { currentUser: currentAccount, loading } = useSelector((state) => state.user);
-  const profileData = {
-    username: currentAccount.username,
-    email: currentAccount.email,
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    website: "https://www.example.com",
-    location: "Jakarta, Indonesia",
-    joinedDate: "January 1, 2022",
-    followersCount: 100,
-    followingCount: 50,
-  };
 
   // PROFILE IMAGE UPLOAD HANDLING
   const fileRef = useRef(null);
@@ -63,15 +55,7 @@ export default function Profile() {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((getDownloadURL) => {
-          if (getDownloadURL && isValidURL(getDownloadURL)) {
-            return setFormData({ ...formData, avatar: getDownloadURL });
-          } else {
-            return setFormData({
-              ...formData,
-              avatar:
-                "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
-            });
-          }
+          return setFormData({ ...formData, avatar: getDownloadURL });
         });
       }
     );
@@ -86,7 +70,10 @@ export default function Profile() {
 
   // UPDATE PROFILE REQUEST
   const dispatch = useDispatch();
-  const [value, setValue] = useState({ username: profileData.username, email: profileData.email });
+  const [value, setValue] = useState({
+    username: currentAccount.username,
+    email: currentAccount.email,
+  });
 
   const submitUpdateHandle = async (e) => {
     e.preventDefault();
@@ -201,7 +188,7 @@ export default function Profile() {
 
   return (
     <>
-      <div className="flex flex-col gap-5 px-14 py-14 lg:flex-row max-sm:px-3 justify-center items-center min-h-screen bg-gray-100">
+      <div className="flex flex-col gap-5 px-14 py-14 lg:flex-row max-sm:px-3 justify-center items-start min-h-screen bg-gray-100">
         {/* LEFT CONTAINER */}
         <form
           onSubmit={submitUpdateHandle}
@@ -219,7 +206,7 @@ export default function Profile() {
           <img
             src={formData.avatar || currentAccount.avatar}
             alt="Profile"
-            className="rounded-full mx-auto mb-4 cursor-pointer h-[6rem] object-cover text-center"
+            className="rounded-full mx-auto mb-8 cursor-pointer h-[6rem] object-cover text-center"
             onClick={() => fileRef.current.click()}
           />
           {fileImgError ? (
@@ -236,8 +223,8 @@ export default function Profile() {
 
           {/* UserProfile COMPONENT */}
           <UserProfile
-            usernameData={profileData.username}
-            emailData={profileData.email}
+            usernameData={currentAccount.username}
+            emailData={currentAccount.email}
             usernameOnChange={(e) => setValue({ ...value, username: e.target.value })}
             emailOnChange={(e) => {
               setValue({ ...value, email: e.target.value });
@@ -270,81 +257,7 @@ export default function Profile() {
           </div>
         </form>
 
-        {/* Kontainer informasi profil di sebelah kanan */}
-        <form className="w-md max-lg:w-full bg-white p-10 rounded-lg shadow-lg">
-          <h1 className="text-2xl font-semibold mb-4">Profile Page</h1>
-
-          <div className="mb-4">
-            <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
-              Bio
-            </label>
-            <p className="mt-1 text-lg text-gray-900" id="bio">
-              {profileData.bio}
-            </p>
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="website" className="block text-sm font-medium text-gray-700">
-              Website
-            </label>
-            <a
-              href={profileData.website}
-              className="text-blue-500"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {profileData.website}
-            </a>
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700">
-              Location
-            </label>
-            <p className="mt-1 text-lg font-semibold text-gray-900" id="location">
-              {profileData.location}
-            </p>
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="joinedDate" className="block text-sm font-medium text-gray-700">
-              Joined Date
-            </label>
-            <p className="mt-1 text-lg font-semibold text-gray-900" id="joinedDate">
-              {profileData.joinedDate}
-            </p>
-          </div>
-
-          <div className="flex flex-col md:flex-row justify-between">
-            <div className="mb-2 md:mb-0 md:mr-4">
-              <label htmlFor="followersCount" className="block text-sm font-medium text-gray-700">
-                Followers
-              </label>
-              <p className="mt-1 text-lg font-semibold text-gray-900" id="followersCount">
-                {profileData.followersCount}
-              </p>
-            </div>
-
-            <div>
-              <label htmlFor="followingCount" className="block text-sm font-medium text-gray-700">
-                Following
-              </label>
-              <p className="mt-1 text-lg font-semibold text-gray-900" id="followingCount">
-                {profileData.followingCount}
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-8">
-            <button
-              disabled={loading}
-              type="submit"
-              className="w-full bg-sky-600 hover:bg-sky-700 rounded text-white text-base max-sm:text-sm font-semibold p-2"
-            >
-              {loading ? "Loading..." : "Update Profile Page"}
-            </button>
-          </div>
-        </form>
+        <Listing />
       </div>
     </>
   );

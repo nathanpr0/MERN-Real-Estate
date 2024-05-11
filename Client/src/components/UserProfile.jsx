@@ -61,9 +61,7 @@ export default function UserProfile({ usernameData, emailData, usernameOnChange,
         <div className="flex justify-between items-center gap-2">
           <input
             type="text"
-            className={`mt-1 text-lg py-3 w-full font-semibold text-gray-900 ${
-              focusInput["username"] ? "focus:outline-none" : ""
-            }`}
+            className="mt-1 text-lg py-3 w-full font-semibold text-gray-900 read-only:focus:outline-none focus:outline-sky-800 focus:shadow-md focus:px-3"
             id="username"
             name="username"
             autoComplete="off"
@@ -93,9 +91,7 @@ export default function UserProfile({ usernameData, emailData, usernameOnChange,
         <div className="flex justify-between items-center gap-2">
           <input
             type="email"
-            className={`mt-1 text-lg py-3 w-full font-semibold text-gray-900 ${
-              focusInput["email"] ? "focus:outline-none" : ""
-            }`}
+            className="mt-1 text-lg py-3 w-full font-semibold text-gray-900 read-only:focus:outline-none focus:outline-sky-800 focus:shadow-md focus:px-3"
             id="email"
             name="email"
             autoComplete="off"
