@@ -33,7 +33,6 @@ export default class AuthController {
         const { password: pass, ...data } = response._doc;
         // ACCOUNT IS CREATED
         res.cookie("Access_Token", token, { httpOnly: true }).status(201).json(data);
-        console.log("User Account Created");
 
         return;
       } catch (error) {
@@ -81,7 +80,6 @@ export default class AuthController {
               })
               .status(201)
               .json(data);
-            console.log(`Berhasil Login`);
 
             return;
         }
@@ -98,7 +96,6 @@ export default class AuthController {
       try {
         res.clearCookie("Access_Token");
         res.status(200).json({ user: "User has been Logged Out!" });
-        console.log("Akun Berhasil Logged Out");
 
         return;
       } catch (error) {
@@ -130,7 +127,6 @@ export default class AuthController {
             })
             .status(201)
             .json(data);
-          console.log("Akun Google berhasil di Autentikasi");
 
           return;
         }
@@ -157,7 +153,6 @@ export default class AuthController {
           // RESPONSE FROM SERVER TO CLIENT
           const { password: pass, ...data } = response._doc;
           res.cookie("Access_Token", token, { httpOnly: true }).status(200).json(data);
-          console.log("Akun Google berhasil di Autentikasi");
 
           return;
         }

@@ -1,4 +1,5 @@
 import UserModel from "../Models/user.models.mjs";
+import ListingModel from "../Models/listing.models.mjs";
 import asyncHandler from "express-async-handler";
 import bcryptjs from "bcryptjs";
 
@@ -7,34 +8,37 @@ export default class UserController {
     return asyncHandler(async (req, res) => {
       // VERIFY COOKIE TOKENS BEFORE UPDATING
       const { id } = req.params;
+
       if (id !== req.user.id) {
         res.status(401).json({
           error: "Unauthorized: You're not allowed to update other accounts, ID does not match",
         });
-      }
+      } else {
+        const { username, email, avatar } = req.body;
+        try {
+          if (req.body["password"]) {
+            req.body["password"] = bcryptjs.hashSync(req.body["password"], 10);
+          }
 
-      const { username, email, avatar } = req.body;
-      try {
-        if (req.body["password"]) {
-          req.body["password"] = bcryptjs.hashSync(req.body["password"], 10);
-        }
-
-        const updatedUser = await UserModel.findByIdAndUpdate(
-          id,
-          {
-            $set: {
-              username: username,
-              email: email,
-              avatar: avatar,
+          const updatedUser = await UserModel.findByIdAndUpdate(
+            id,
+            {
+              $set: {
+                username: username,
+                email: email,
+                avatar: avatar,
+              },
             },
-          },
-          { new: true }
-        );
+            { new: true }
+          );
 
-        const { password, ...data } = updatedUser._doc;
-        res.status(200).json(data);
-      } catch (error) {
-        throw new Error(error.message);
+          const { password, ...data } = updatedUser._doc;
+          res.status(200).json(data);
+
+          return;
+        } catch (error) {
+          throw new Error(error.message);
+        }
       }
     });
   }
@@ -47,13 +51,38 @@ export default class UserController {
         res.status(401).json({
           error: "Unauthorized: You're not allowed to delete other accounts, ID does not match",
         });
-      }
+      } else {
+        try {
+          await UserModel.findByIdAndDelete(id);
+          await ListingModel.deleteMany({ created_by_user: id });
+          res.clearCookie("Access_Token");
+          res.status(200).json({ Delete: "User Has Been Deleted" });
 
-      try {
-        await UserModel.findByIdAndDelete(id);
-        res.status(200).json({ Delete: "User Has Been Deleted" }).clearCookie("Access_Token");
-      } catch (error) {
-        throw new Error(error.message);
+          return;
+        } catch (error) {
+          throw new Error(error.message);
+        }
+      }
+    });
+  }
+
+  static readUserListing() {
+    return asyncHandler(async (req, res) => {
+      const { id } = req.params;
+
+      if (id !== req.user.id) {
+        res.status(401).json({
+          error:
+            "Unauthorized: You're not allowed to get the User Listings Data, Your ID does not match",
+        });
+      } else {
+        try {
+          const response = await ListingModel.find({ created_by_user: id });
+          res.status(200).json(response);
+          return;
+        } catch (error) {
+          throw new Error(error.message);
+        }
       }
     });
   }

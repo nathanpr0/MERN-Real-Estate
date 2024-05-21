@@ -6,5 +6,7 @@ const listingControl = new listingController();
 const listingRouter = express.Router();
 
 listingRouter.post("/create", verifyToken, listingControl.create());
+listingRouter.delete("/delete/:id", verifyToken, listingControl.delete());
+listingRouter.put("/update/:id", verifyToken, listingControl.update());
 
 export default listingRouter;

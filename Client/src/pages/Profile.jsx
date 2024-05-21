@@ -3,9 +3,16 @@ import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-// IMPORT FIREBASE STORAGE
-import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
+// IMPORT FIREBASE
 import { app } from "../firebase.js";
+import { getAuth, signOut, deleteUser } from "firebase/auth";
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  deleteObject,
+} from "firebase/storage";
 
 // IMPORT REDUX SLICE
 import { useDispatch, useSelector } from "react-redux";
@@ -24,10 +31,14 @@ import {
 // COMPONENTS
 import UserProfile from "../components/UserProfile.jsx";
 import Listing from "../components/Listing.jsx";
+import UserListing from "../components/UserListing.jsx";
 
 export default function Profile() {
   // PROFILE INFORMATION
   const { currentUser: currentAccount, loading } = useSelector((state) => state.user);
+
+  // USER LISTINGS
+  const [userListing, setListing] = useState([]);
 
   // PROFILE IMAGE UPLOAD HANDLING
   const fileRef = useRef(null);
@@ -133,13 +144,44 @@ export default function Profile() {
       try {
         // DELETE ACCOUNT IN PROGRESS
         dispatch(deleteStart());
-        await axios.delete(import.meta.env.VITE_DELETE_PROFILE + currentAccount._id, {
-          withCredentials: true,
-        });
+        const auth = getAuth(app);
+        const storage = getStorage(app);
+        const user = auth.currentUser;
 
-        // DELETE ACCOUNT IS SUCCEED
-        dispatch(deleteUserSuccess());
-        toast.success("Account Is Deleted");
+        // CHECK THE USER ACCOUNT IF REGISTER TO THE FIREBASE AUTH
+        // THEN DELETE THE ACCOUNT FROM DATABASE & FIREBASE
+        if (user) {
+          // HAPUS STORAGE USER
+          const imageFileUrls = [];
+          for (let i = 0; i < userListing.length; i++) {
+            const urls = userListing[i].imagesURL;
+            imageFileUrls.push(...urls);
+          }
+          for (const imageUrl of imageFileUrls) {
+            const url = new URL(imageUrl);
+            const filePathWithName = decodeURIComponent(
+              url.pathname.substring(url.pathname.lastIndexOf("/") + 1)
+            );
+            console.log(filePathWithName);
+            const userRefStorage = ref(storage, filePathWithName);
+            await deleteObject(userRefStorage);
+          }
+
+          // SESI AUTENTIKASI FIREBASE AUTH DI HENTIKAN DAHULU
+          await signOut(auth);
+          // LANJUT MENGHAPUS DATA USER DARI AUTH FIREBASE
+          await deleteUser(user);
+
+          await axios.delete(import.meta.env.VITE_DELETE_PROFILE + currentAccount._id, {
+            withCredentials: true,
+          });
+
+          // DELETE ACCOUNT IS SUCCEED
+          dispatch(deleteUserSuccess());
+          toast.success("Account Is Deleted");
+        } else {
+          throw new Error("Mohon melakukan login Ulang, Server Error!");
+        }
 
         return;
       } catch (error) {
@@ -172,6 +214,14 @@ export default function Profile() {
 
     try {
       dispatch(logOutLoading());
+
+      // SIGN OUT USER FIREBASE AUTH
+      const auth = getAuth(app);
+      if (auth.currentUser) {
+        await signOut(auth);
+      }
+
+      // SIGN OUT USER FROM DATABASE
       await axios.get(import.meta.env.VITE_SIGN_OUT_API, { withCredentials: true });
 
       dispatch(logOutFinish());
@@ -188,11 +238,11 @@ export default function Profile() {
 
   return (
     <>
-      <div className="flex flex-col gap-5 px-14 py-14 lg:flex-row max-sm:px-3 justify-center items-start min-h-screen bg-gray-100">
+      <div className="flex flex-col gap-5 p-14 lg:flex-row max-sm:px-3 justify-center items-start min-h-screen bg-gray-100">
         {/* LEFT CONTAINER */}
         <form
           onSubmit={submitUpdateHandle}
-          className="w-[30vw] max-lg:w-full bg-white p-10 rounded-lg shadow-lg flex-shrink-0"
+          className="w-[30vw] max-lg:w-full bg-white p-10 rounded-lg shadow-lg shadow-gray-400 flex-shrink-0"
         >
           <input
             type="file"
@@ -259,6 +309,8 @@ export default function Profile() {
 
         <Listing />
       </div>
+
+      <UserListing userListing={userListing} setListing={setListing} />
     </>
   );
 }

@@ -9,11 +9,15 @@ import userRouter from "./Routes/user.route.mjs";
 import authRouter from "./Routes/auth.route.mjs";
 import listingRouter from "./Routes/listing.route.mjs";
 
+// IMPORT CUSTOM ERROR MIDDLEWARE
+import customErrorMiddleWare from "./utils/error.middleware.mjs";
+
 // API CONNECTIONS
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT;
 const CONNECTION = process.env.CONNECTION;
 
+// MIDDLEWARE PARSER
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -29,11 +33,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
 
 // ERROR MIDDLEWARE
-app.use((err, req, res, next) => {
-  const statusCode = err.statusCode ? err.statusCode : 500;
-  res.status(statusCode).json({ Gagal_Diproses: err.message });
-  next(err);
-});
+app.use(customErrorMiddleWare);
 
 // RUNNING CONNECTION
 const database = (url) => {

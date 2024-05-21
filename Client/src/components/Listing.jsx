@@ -1,33 +1,67 @@
 import { useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+// IMPORT REACT REDUX
 import { useSelector } from "react-redux";
 
 // IMPORT FIREBASE STORAGE
-import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  deleteObject,
+} from "firebase/storage";
+import { getAuth } from "firebase/auth";
 import { app } from "../firebase";
 
 export default function Listing() {
-  const { loading } = useSelector((state) => state.user);
+  const { currentUser: currentAccount } = useSelector((state) => state.user);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    imagesURL: [],
+    name: "",
+    description: "",
+    address: "",
+    types: "Sewa",
+    bedrooms: 1,
+    bathrooms: 1,
+    regularPrice: 3000000,
+    discountPrice: 0,
+    offer: false,
+    parking: false,
+    furnished: false,
+    lot: "Rumah",
+  });
 
   // IMAGES UPLOAD
   const [images, setImages] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [imageError, setImageUploadError] = useState(false);
-  const [formImage, setFormImage] = useState({
-    ImagesURL: [],
-  });
 
-  // STORE IMAGE TO FIREBASE URL THEN GET THE URL
-  const storeImage = async (file) => {
+  // STORE IMAGE TO FIREBASE STORAGE PROJECT THEN GET THE URL
+  const storeImage = (file) => {
     return new Promise((resolve, reject) => {
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+
+      if (!currentUser) {
+        reject(new Error("User not authenticated"));
+        return;
+      }
+
+      const uid = currentUser.uid;
       const storage = getStorage(app);
-      const fileName = new Date() + file.name;
-      const storageRef = ref(storage, fileName);
+      const storageRef = ref(storage, `images/${uid}/${new Date().getTime() + file.name}`);
+
       const uploadTask = uploadBytesResumable(storageRef, file);
 
       uploadTask.on(
         "state_changed",
         (snapshot) => {
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload is ${progress}% done`);
         },
         (error) => {
           reject(error);
@@ -46,18 +80,21 @@ export default function Listing() {
     e.preventDefault();
 
     // CHECK JUMLAH IMAGES
-    if (images.length > 0 && images.length + formImage["ImagesURL"].length < 7) {
+    if (images.length > 0 && images.length + formData["imagesURL"].length < 7) {
       setUploading(true);
       setImageUploadError(false);
       const promises = [];
 
+      // MEMASUKKAN DATA URL IMAGES DARI FIREBASE YANG DI PINDAHKAN
+      // KE ARRAY KOSONG YANG AKAN DI GUNAKAN KE DLM STATE BARU
       for (let i = 0; i < images.length; i++) {
         promises.push(storeImage(images[i]));
       }
 
+      // MENYIMPAN URL IMAGES FIREBASE KE DLM STATE
       Promise.all(promises)
         .then((urls) => {
-          setFormImage({ ...formImage, ImagesURL: formImage["ImagesURL"].concat(urls) });
+          setFormData({ ...formData, imagesURL: formData["imagesURL"].concat(urls) });
           setUploading(false);
           setImageUploadError(false);
         })
@@ -72,76 +109,147 @@ export default function Listing() {
   };
 
   // HANDLE DELETE IMAGE AFTER UPLOADED BEFORE CREATING LISTING
-  const handleDeleteImage = (index) => {
-    setFormImage({
-      ...formImage,
-      ImagesURL: formImage.ImagesURL.filter((_, i) => i !== index),
+  const handleDeleteImage = async (index, imageurl) => {
+    // DELETE FIREBASE FILE STORAGE
+    const storage = getStorage(app);
+    const url = new URL(imageurl);
+    const filePathWithName = decodeURIComponent(
+      url.pathname.substring(url.pathname.lastIndexOf("/") + 1)
+    );
+    const fileRef = ref(storage, filePathWithName);
+    await deleteObject(fileRef);
+
+    setFormData({
+      ...formData,
+      imagesURL: formData.imagesURL.filter((_, i) => i !== index),
     });
+  };
+
+  // PUTIING ON CHANGE INPUT VALUE INTO FORM DATA STATE
+  const handleChangeInput = (e) => {
+    if (e.target.id === "Jual" || e.target.id === "Sewa") {
+      setFormData({ ...formData, types: e.target.id });
+    }
+
+    if (e.target.id === "parking" || e.target.id === "furnished" || e.target.id === "offer") {
+      setFormData({ ...formData, [e.target.id]: e.target.checked });
+    }
+
+    if (e.target.id === "Rumah" || e.target.id === "Apartemen") {
+      setFormData((prev) => {
+        return { ...prev, lot: e.target.id };
+      });
+    }
+
+    if (e.target.type === "text" || e.target.type === "textarea") {
+      setFormData({ ...formData, [e.target.id]: e.target.value });
+    } else if (e.target.type === "number") {
+      setFormData({ ...formData, [e.target.id]: parseInt(e.target.value, 10) });
+    }
+  };
+
+  // SEND A REQUEST TO API FOR STORING DATA TO DATABASE
+  const handleFormSubmit = async () => {
+    try {
+      if (formData.regularPrice < formData.discountPrice) {
+        return toast.error("Discount Price tidak boleh diatas Harga Regular Price!");
+      }
+
+      if (formData.imagesURL.length < 1) {
+        return toast.error("Anda setidaknya harus upload 1 foto!");
+      }
+
+      setLoading(true);
+      await axios.post(
+        import.meta.env.VITE_CREATE_LISTING,
+        { ...formData, created_by_user: currentAccount._id },
+        { withCredentials: true }
+      );
+
+      setLoading(false);
+      return;
+    } catch (error) {
+      setLoading(false);
+      toast.error(error.message);
+
+      return;
+    }
   };
 
   return (
     <>
       {/* LISTING CREATED RIGHT CONTAINER */}
-      <form className="w-full bg-white p-10 rounded-lg shadow-lg">
-        <h1 className="text-2xl font-semibold mb-4">Listing Page</h1>
+      <form
+        onSubmit={() => handleFormSubmit()}
+        className="w-full bg-white p-10 rounded-lg shadow-lg shadow-gray-400"
+      >
+        <h1 className="text-2xl text-gray-700 font-semibold mb-4">Listing Page</h1>
         {/* INPUT NAMA */}
         <section className="flex flex-col gap-4 mt-4">
-          <label htmlFor="nama" className="block text-md font-medium text-gray-700 ">
+          <label htmlFor="name" className="block text-md font-medium text-gray-700 ">
             Nama
           </label>
           <input
             required
-            minLength="10"
-            maxLength="62"
-            id="nama"
-            name="nama"
+            type="text"
+            id="name"
+            name="name"
             autoComplete="off"
             placeholder="Nama"
             className="w-full shadow-md border-solid border-sky-600 border-2 rounded px-4 py-3 focus:outline-sky-800"
+            value={formData.name}
+            onChange={handleChangeInput}
           />
         </section>
 
         {/* INPUT DESKRIPSI */}
         <section className="flex flex-col gap-4 mt-4">
-          <label htmlFor="deskripsi" className="block text-md font-medium text-gray-700 ">
-            Deskripsi
+          <label htmlFor="description" className="block text-md font-medium text-gray-700">
+            Deskripsi <span className="text-sm">(Max: 200 Words)</span>
           </label>
           <textarea
             required
-            name="deskripsi"
-            id="deskripsi"
+            name="description"
+            id="description"
+            maxLength="200"
             placeholder="Deskripsi"
             className="w-full shadow-md border-solid border-sky-600 border-2 rounded px-4 py-3 focus:outline-sky-800"
+            value={formData.description}
+            onChange={handleChangeInput}
           />
         </section>
 
         {/* INPUT ALAMAT */}
         <section className="flex flex-col gap-4 mt-4">
-          <label htmlFor="alamat" className="block text-md font-medium text-gray-700 ">
+          <label htmlFor="address" className="block text-md font-medium text-gray-700 ">
             Alamat
           </label>
           <input
             required
             type="text"
-            name="alamat"
-            id="alamat"
+            name="address"
+            id="address"
             placeholder="Alamat"
             autoComplete="off"
             className="w-full shadow-md border-solid border-sky-600 border-2 rounded px-4 py-3 focus:outline-sky-800"
+            value={formData.address}
+            onChange={handleChangeInput}
           />
         </section>
 
         {/* INPUT DETAIL */}
-        <section className="flex justify-evenly flex-wrap gap-3 mt-8">
+        <section className="flex flex-wrap gap-5 mt-8">
           {/* Checkbox 1 */}
           <div className="flex gap-3 items-center">
             <input
               type="checkbox"
-              name="jual"
-              id="jual"
+              name="Jual"
+              id="Jual"
               className="h-6 w-6 shadow-md cursor-pointer"
+              checked={formData.types === "Jual"}
+              onChange={handleChangeInput}
             />
-            <label htmlFor="jual" className="text-sm font-medium text-gray-700 ">
+            <label htmlFor="Jual" className="text-sm font-medium text-gray-700 ">
               Jual
             </label>
           </div>
@@ -150,11 +258,13 @@ export default function Listing() {
           <div className="flex gap-3 items-center">
             <input
               type="checkbox"
-              name="sewa"
-              id="sewa"
+              name="Sewa"
+              id="Sewa"
               className="h-6 w-6 shadow-md cursor-pointer"
+              checked={formData.types === "Sewa"}
+              onChange={handleChangeInput}
             />
-            <label htmlFor="sewa" className="text-sm font-medium text-gray-700 ">
+            <label htmlFor="Sewa" className="text-sm font-medium text-gray-700 ">
               Sewa
             </label>
           </div>
@@ -163,11 +273,13 @@ export default function Listing() {
           <div className="flex gap-3 items-center">
             <input
               type="checkbox"
-              name="parking-spot"
-              id="parking-spot"
+              name="parking"
+              id="parking"
               className="h-6 w-6 shadow-md cursor-pointer"
+              checked={formData.parking}
+              onChange={handleChangeInput}
             />
-            <label htmlFor="parking-spot" className="text-sm font-medium text-gray-700 ">
+            <label htmlFor="parking" className="text-sm font-medium text-gray-700 ">
               Parking Spot
             </label>
           </div>
@@ -179,6 +291,8 @@ export default function Listing() {
               name="furnished"
               id="furnished"
               className="h-6 w-6 shadow-md cursor-pointer"
+              checked={formData.furnished}
+              onChange={handleChangeInput}
             />
             <label htmlFor="furnished" className="text-sm font-medium text-gray-700 ">
               Furnished
@@ -192,6 +306,8 @@ export default function Listing() {
               name="offer"
               id="offer"
               className="h-6 w-6 shadow-md cursor-pointer"
+              checked={formData.offer}
+              onChange={handleChangeInput}
             />
             <label htmlFor="offer" className="text-sm font-medium text-gray-700 ">
               Offer
@@ -202,11 +318,13 @@ export default function Listing() {
           <div className="flex gap-3 items-center">
             <input
               type="checkbox"
-              name="rumah"
-              id="rumah"
+              name="Rumah"
+              id="Rumah"
               className="h-6 w-6 shadow-md cursor-pointer"
+              checked={formData.lot === "Rumah"}
+              onChange={handleChangeInput}
             />
-            <label htmlFor="rumah" className="text-sm font-medium text-gray-700 ">
+            <label htmlFor="Rumah" className="text-sm font-medium text-gray-700 ">
               Rumah
             </label>
           </div>
@@ -215,11 +333,13 @@ export default function Listing() {
           <div className="flex gap-3 items-center">
             <input
               type="checkbox"
-              name="apartemen"
-              id="apartemen"
+              name="Apartemen"
+              id="Apartemen"
               className="h-6 w-6 shadow-md cursor-pointer"
+              checked={formData.lot === "Apartemen"}
+              onChange={handleChangeInput}
             />
-            <label htmlFor="apartemen" className="text-sm font-medium text-gray-700 ">
+            <label htmlFor="Apartemen" className="text-sm font-medium text-gray-700 ">
               Apartemen
             </label>
           </div>
@@ -229,7 +349,7 @@ export default function Listing() {
         <section className="flex flex-col gap-3 mt-8">
           <span className="text-md font-medium text-gray-700">Informasi Tambahan</span>
 
-          <div className="flex flex-wrap justify-around gap-5">
+          <div className="flex flex-wrap gap-5">
             {/* BEDROOMS COUNT INPUT */}
             <div className="flex flex-col gap-3">
               <label htmlFor="bedrooms" className="text-sm">
@@ -243,6 +363,8 @@ export default function Listing() {
                 id="bedrooms"
                 name="bedrooms"
                 className="w-full shadow-md border-solid border-sky-600 border-2 rounded px-4 py-2 focus:outline-sky-800"
+                value={formData.bedrooms}
+                onChange={handleChangeInput}
               />
             </div>
 
@@ -259,6 +381,8 @@ export default function Listing() {
                 id="bathrooms"
                 name="bathrooms"
                 className="w-full shadow-md border-solid border-sky-600 border-2 rounded px-4 py-2 focus:outline-sky-800"
+                value={formData.bathrooms}
+                onChange={handleChangeInput}
               />
             </div>
 
@@ -268,25 +392,33 @@ export default function Listing() {
               </label>
               <input
                 required
+                min="3000000"
                 type="number"
                 id="regularPrice"
                 name="regularPrice"
                 className="w-full shadow-md border-solid border-sky-600 border-2 rounded px-4 py-2 focus:outline-sky-800"
+                value={formData.regularPrice}
+                onChange={handleChangeInput}
               />
             </div>
 
-            <div className="flex flex-col gap-3">
-              <label htmlFor="discountPrice" className="text-sm">
-                Discount Price (Rp/bln)
-              </label>
-              <input
-                required
-                type="number"
-                id="discountPrice"
-                name="discountPrice"
-                className="w-full shadow-md border-solid border-sky-600 border-2 rounded px-4 py-2 focus:outline-sky-800"
-              />
-            </div>
+            {formData.offer && (
+              <div className="flex flex-col gap-3">
+                <label htmlFor="discountPrice" className="text-sm">
+                  Discount Price (Rp/bln)
+                </label>
+                <input
+                  required
+                  min="0"
+                  type="number"
+                  id="discountPrice"
+                  name="discountPrice"
+                  className="w-full shadow-md border-solid border-sky-600 border-2 rounded px-4 py-2 focus:outline-sky-800"
+                  value={formData.discountPrice}
+                  onChange={handleChangeInput}
+                />
+              </div>
+            )}
           </div>
         </section>
 
@@ -320,8 +452,8 @@ export default function Listing() {
         </section>
 
         {imageError && <p className="text-red-600 text-sm mt-2 px-1">{imageError}</p>}
-        {formImage.ImagesURL.length > 0 &&
-          formImage.ImagesURL.map((value, i) => {
+        {formData.imagesURL.length > 0 &&
+          formData.imagesURL.map((value, i) => {
             return (
               <figure
                 key={i}
@@ -330,13 +462,13 @@ export default function Listing() {
                 <img
                   src={value}
                   alt="listing image"
-                  className="h-36  shadow-lg object-contain rounded-lg"
+                  className="h-36 max-sm:h-28 shadow-lg object-contain rounded-lg"
                 />
 
                 <button
                   type="button"
                   className="text-red-600 hover:opacity-75 text-sm mt-2 px-1 font-semibold uppercase"
-                  onClick={() => handleDeleteImage(i)}
+                  onClick={() => handleDeleteImage(i, value)}
                 >
                   Delete
                 </button>

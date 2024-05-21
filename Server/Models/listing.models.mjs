@@ -57,7 +57,13 @@ const listingSchema = new mongoose.Schema(
       required: true,
     },
 
-    image: {
+    lot: {
+      type: String,
+      required: true,
+      enum: ["Rumah", "Apartemen"],
+    },
+
+    imagesURL: {
       type: Array,
       required: true,
     },

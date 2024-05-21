@@ -10,6 +10,10 @@ import { signStart, signSuccess, signFailure } from "../app/features/userSlice.j
 // IMPORT GOOGLE AUTH COMPONENT
 import OAuth from "../components/OAuth.jsx";
 
+// IMPORT FIREBASE AUTH
+import { app } from "../firebase.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+
 export default function SignIn() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -21,7 +25,7 @@ export default function SignIn() {
     password: "",
   });
 
-  // SUBMIT TO CREATE AN ACCOUNT
+  // SUBMIT TO LOG IN
   async function handleSubmit(e) {
     e.preventDefault();
 
@@ -39,20 +43,32 @@ export default function SignIn() {
           setLoading(true);
           dispatch(signStart());
 
-          const response = await axios.post(
-            import.meta.env.VITE_SIGN_IN_API,
-            {
-              email: value.email,
-              password: value.password,
-            },
-            { withCredentials: true }
-          );
+          // AUTH EMAIL PROVIDER
+          const auth = getAuth(app);
+          await signInWithEmailAndPassword(auth, value.email, value.password);
 
-          toast.success("Account Successfully Log In");
-          dispatch(signSuccess(response.data));
-          setLoading(false);
+          onAuthStateChanged(auth, async (user) => {
+            if (user) {
+              const { email } = user;
 
-          navigate("/");
+              const response = await axios.post(
+                import.meta.env.VITE_SIGN_IN_API,
+                {
+                  email: email,
+                  password: value.password,
+                },
+                { withCredentials: true }
+              );
+
+              toast.success("Account Successfully Log In");
+              dispatch(signSuccess(response.data));
+              setLoading(false);
+
+              navigate("/");
+            }
+          });
+
+          return;
         } catch (error) {
           setLoading(false);
 

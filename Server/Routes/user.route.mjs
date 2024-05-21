@@ -5,6 +5,11 @@ const userRouter = express.Router();
 
 // UPDATE USER INFO
 userRouter.put("/update/:id", verifyToken, UserController.updateUserInfo());
+
+// DELETE USER ACCOUNT
 userRouter.delete("/delete/:id", verifyToken, UserController.deleteUserInfo());
+
+// READ USER CREATED LISTING
+userRouter.get("/readlistings/:id", verifyToken, UserController.readUserListing());
 
 export default userRouter;

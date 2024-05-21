@@ -1,7 +1,6 @@
 import express from "express";
 import AuthController from "../Controllers/auth.control.mjs";
 const authRouter = express.Router();
-import verifyToken from "../utils/verifyUser.mjs";
 
 // CREATE USER
 authRouter.post("/signup", AuthController.signUp());

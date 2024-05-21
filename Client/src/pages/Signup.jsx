@@ -7,6 +7,16 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { signStart, signSuccess, signFailure } from "../app/features/userSlice.js";
 
+// IMPORT FIREBASE CREATE ACCOUNT EMAIL PROVIDER
+import { app } from "../firebase.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence,
+} from "firebase/auth";
+
 // IMPORT GOOGLE AUTH COMPONENT
 import OAuth from "../components/OAuth.jsx";
 
@@ -26,30 +36,44 @@ export default function SignUp() {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    switch (true) {
-      case value["username"] === "":
-        toast.info("Harap masukkan Username!");
-        return;
+    // Destructuring to simplify access
+    const { username, email, password } = value;
 
-      case value["email"] === "":
-        toast.info("Harap masukkan alamat Email!");
-        return;
+    if (!username) {
+      toast.info("Harap masukkan Username!");
+      return;
+    }
 
-      case value["password"] === "":
-        toast.info("Jangan lupa masukkan Password!");
-        return;
+    if (!email) {
+      toast.info("Harap masukkan alamat Email!");
+      return;
+    }
 
-      default:
-        try {
-          setLoading(true);
-          dispatch(signStart());
+    if (!password) {
+      toast.info("Jangan lupa masukkan Password!");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      dispatch(signStart());
+
+      // AUTH EMAIL PROVIDER
+      const auth = getAuth(app);
+      await setPersistence(auth, browserLocalPersistence);
+      await createUserWithEmailAndPassword(auth, email, password);
+
+      // Check if user is authenticated
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const { email } = user;
 
           const response = await axios.post(
             import.meta.env.VITE_SIGN_UP_API,
             {
-              username: value.username,
-              email: value.email,
-              password: value.password,
+              username,
+              email,
+              password,
             },
             { withCredentials: true }
           );
@@ -59,17 +83,22 @@ export default function SignUp() {
           setLoading(false);
 
           navigate("/");
-        } catch (error) {
-          setLoading(false);
-          if (error.response && error.response.status === 409) {
-            dispatch(signFailure(error.response.data));
-            const { error: errorMessage } = error.response.data;
-            toast.error(errorMessage);
-          } else {
-            dispatch(signFailure(error.message));
-            toast.error(error.message);
-          }
         }
+      });
+
+      return;
+    } catch (error) {
+      setLoading(false);
+      if (error.response && error.response.status === 409) {
+        dispatch(signFailure(error.response.data));
+        const { error: errorMessage } = error.response.data;
+        toast.error(errorMessage);
+      } else {
+        dispatch(signFailure(error.message));
+        toast.error(error.message);
+      }
+
+      return;
     }
   }
 
@@ -92,7 +121,7 @@ export default function SignUp() {
               name="username"
               placeholder="Masukkan username"
               autoComplete="off"
-              value={value["username"]}
+              value={value.username}
               onChange={(e) => setOnChange({ ...value, username: e.target.value })}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
@@ -107,7 +136,7 @@ export default function SignUp() {
               name="email"
               placeholder="Masukkan alamat email"
               autoComplete="off"
-              value={value["email"]}
+              value={value.email}
               onChange={(e) => setOnChange({ ...value, email: e.target.value })}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
@@ -122,7 +151,7 @@ export default function SignUp() {
               name="password"
               placeholder="Masukkan password anda"
               autoComplete="off"
-              value={value["password"]}
+              value={value.password}
               onChange={(e) => setOnChange({ ...value, password: e.target.value })}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
