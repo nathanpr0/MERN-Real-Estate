@@ -61,11 +61,38 @@ export default class listingController {
         if (listing["created_by_user"] !== req.user.id) {
           return res.status(401).json({
             error:
-              "Unauthorized: You're not allowed to delete this listing. Your ID does not match.",
+              "Unauthorized: You're not allowed to update this listing. Your ID does not match.",
           });
         }
 
         const response = await ListingModel.findByIdAndUpdate(id, req.body, { new: true });
+        res.status(200).json(response);
+
+        return;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    });
+  }
+
+  get() {
+    return asyncHandler(async (req, res) => {
+      try {
+        const response = await ListingModel.findById(req.params.id);
+
+        if (!response) {
+          return res.status(404).json({
+            not_found: "Listing tidak ditemukan, gagal untuk menghapus data!",
+          });
+        }
+
+        if (response["created_by_user" !== req.user.id]) {
+          return res.status(401).json({
+            error:
+              "Unauthorized: You're not allowed to fetch this listing. Your ID does not match.",
+          });
+        }
+
         res.status(200).json(response);
 
         return;

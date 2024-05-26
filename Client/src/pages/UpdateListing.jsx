@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useParams, useNavigate } from "react-router-dom";
 
 // IMPORT REACT REDUX
 import { useSelector } from "react-redux";
@@ -16,8 +17,12 @@ import {
 import { getAuth } from "firebase/auth";
 import { app } from "../firebase";
 
-export default function Listing() {
+export default function UpdateListing() {
+  const navigate = useNavigate();
+
   const { currentUser: currentAccount } = useSelector((state) => state.user);
+  const params = useParams();
+
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     imagesURL: [],
@@ -35,12 +40,31 @@ export default function Listing() {
     lot: "Rumah",
   });
 
-  // IMAGES UPLOAD
   const [images, setImages] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [imageError, setImageUploadError] = useState(false);
 
-  // STORE IMAGE TO FIREBASE STORAGE PROJECT THEN GET THE URL
+  //   FETCHING DATA FIRST BEFORE UPDATING
+  useEffect(() => {
+    async function fetchListing() {
+      const listingId = params.listingid;
+      try {
+        setLoading(true);
+        const response = await axios.get(import.meta.env.VITE_GET_LISTING + listingId, {
+          withCredentials: true,
+        });
+
+        setFormData(response.data);
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+        toast.error(error.message);
+      }
+    }
+
+    fetchListing();
+  }, [params.listingid]);
+
   const storeImage = (file) => {
     return new Promise((resolve, reject) => {
       const auth = getAuth();
@@ -60,8 +84,7 @@ export default function Listing() {
       uploadTask.on(
         "state_changed",
         (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Upload is ${progress}% done`);
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         },
         (error) => {
           reject(error);
@@ -75,23 +98,18 @@ export default function Listing() {
     });
   };
 
-  // AFTER GET THE URL PUT THE IMAGE FIREBASE URL ON THE FORM OF IMAGE STATE
   const handleImagesUpload = (e) => {
     e.preventDefault();
 
-    // CHECK JUMLAH IMAGES
     if (images.length > 0 && images.length + formData["imagesURL"].length < 7) {
       setUploading(true);
       setImageUploadError(false);
       const promises = [];
 
-      // MEMASUKKAN DATA URL IMAGES DARI FIREBASE YANG DI PINDAHKAN
-      // KE ARRAY KOSONG YANG AKAN DI GUNAKAN KE DLM STATE BARU
       for (let i = 0; i < images.length; i++) {
         promises.push(storeImage(images[i]));
       }
 
-      // MENYIMPAN URL IMAGES FIREBASE KE DLM STATE
       Promise.all(promises)
         .then((urls) => {
           setFormData({ ...formData, imagesURL: formData["imagesURL"].concat(urls) });
@@ -102,30 +120,23 @@ export default function Listing() {
           setImageUploadError("Batas ukuran File Maksimal 2mb/gambar!");
           setUploading(false);
         });
+    } else if (images.length === 0 && images.length + formData["imagesURL"].length < 7) {
+      setImageUploadError("Anda belum Memilih file gambar!");
+      setUploading(false);
     } else {
       setImageUploadError("Batas maksimal upload Gambar hanya 6 files!");
       setUploading(false);
     }
   };
 
-  // HANDLE DELETE IMAGE AFTER UPLOADED BEFORE CREATING LISTING
-  const handleDeleteImage = async (index, imageurl) => {
-    // DELETE FIREBASE FILE STORAGE
-    const storage = getStorage(app);
-    const url = new URL(imageurl);
-    const filePathWithName = decodeURIComponent(
-      url.pathname.substring(url.pathname.lastIndexOf("/") + 1)
-    );
-    const fileRef = ref(storage, filePathWithName);
-    await deleteObject(fileRef);
-
+  //   MENGHAPUS UI IMAGE DAN STATE URL GAMBAR DARI FORMDATA
+  const handleDeleteImage = (index) => {
     setFormData({
       ...formData,
       imagesURL: formData.imagesURL.filter((_, i) => i !== index),
     });
   };
 
-  // PUTIING ON CHANGE INPUT VALUE INTO FORM DATA STATE
   const handleChangeInput = (e) => {
     if (e.target.id === "Jual" || e.target.id === "Sewa") {
       setFormData({ ...formData, types: e.target.id });
@@ -148,8 +159,11 @@ export default function Listing() {
     }
   };
 
-  // SEND A REQUEST TO API FOR STORING DATA TO DATABASE
-  const handleFormSubmit = async () => {
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+
+    const listingId = params.listingid;
+
     try {
       if (formData.regularPrice < formData.discountPrice) {
         return toast.error("Discount Price tidak boleh diatas Harga Regular Price!");
@@ -160,13 +174,41 @@ export default function Listing() {
       }
 
       setLoading(true);
-      await axios.post(
-        import.meta.env.VITE_CREATE_LISTING,
+
+      //   FETCHING DATABASE ARRAY URL STORAGE FIREBASE DARI DATABASE
+      const existingImages = (
+        await axios.get(import.meta.env.VITE_GET_LISTING + listingId, {
+          withCredentials: true,
+        })
+      ).data.imagesURL;
+
+      //   MELAKUKAN FILTER SUPAYA HANYA MENGHAPUS FILE YANG TIDAK ADA URLNYA DARI STATE FORMDATA DARI FUNCTION handleDeleteImage
+      const imagesToDelete = existingImages.filter(
+        (imageUrl) => !formData.imagesURL.includes(imageUrl)
+      );
+
+      //   UPDATING DATA
+      await axios.put(
+        `${import.meta.env.VITE_UPDATE_LISTING}${listingId}`,
         { ...formData, created_by_user: currentAccount._id },
         { withCredentials: true }
       );
 
+      //   DELETE FILE IMAGES STORAGE YANG SUDAH DI FILTER OLEH imagesToDelete
+      const storage = getStorage(app);
+      for (const imageUrl of imagesToDelete) {
+        const url = new URL(imageUrl);
+        const filePathWithName = decodeURIComponent(
+          url.pathname.substring(url.pathname.lastIndexOf("/") + 1)
+        );
+        const fileRef = ref(storage, filePathWithName);
+        await deleteObject(fileRef);
+      }
+
       setLoading(false);
+      toast.success("Listing updated successfully!");
+      navigate("/profile");
+
       return;
     } catch (error) {
       setLoading(false);
@@ -177,13 +219,13 @@ export default function Listing() {
   };
 
   return (
-    <>
+    <main className="w-full m-auto px-12 py-14 max-sm:px-3">
       {/* LISTING CREATED RIGHT CONTAINER */}
       <form
-        onSubmit={() => handleFormSubmit()}
+        onSubmit={handleFormSubmit}
         className="w-full bg-white p-10 rounded-lg shadow-lg shadow-gray-400"
       >
-        <h1 className="text-2xl text-gray-700 font-semibold mb-4">Listing Page</h1>
+        <h1 className="text-2xl text-gray-700 font-semibold mb-4 text-center">Update Listing</h1>
         {/* INPUT NAMA */}
         <section className="flex flex-col gap-4 mt-4">
           <label htmlFor="name" className="block text-md font-medium text-gray-700 ">
@@ -483,10 +525,10 @@ export default function Listing() {
             type="submit"
             className="w-full bg-sky-600 hover:bg-sky-700 rounded text-white text-base max-sm:text-sm font-semibold p-2"
           >
-            {loading ? "Loading..." : "Create Listing"}
+            {loading ? "Loading..." : "Update Listing"}
           </button>
         </section>
       </form>
-    </>
+    </main>
   );
 }

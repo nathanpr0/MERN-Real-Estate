@@ -30,7 +30,7 @@ import {
 
 // COMPONENTS
 import UserProfile from "../components/UserProfile.jsx";
-import Listing from "../components/Listing.jsx";
+import CreateListing from "../components/CreateListing.jsx";
 import UserListing from "../components/UserListing.jsx";
 
 export default function Profile() {
@@ -307,7 +307,7 @@ export default function Profile() {
           </div>
         </form>
 
-        <Listing />
+        <CreateListing />
       </div>
 
       <UserListing userListing={userListing} setListing={setListing} />

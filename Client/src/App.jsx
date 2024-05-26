@@ -12,6 +12,7 @@ import SignUp from "./pages/Signup.jsx";
 // IMPORT COMPONENTS
 import Header from "./components/Header.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
+import UpdateListing from "./pages/UpdateListing.jsx";
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route element={<PrivateRoute />}>
           <Route path="/profile" element={<Profile />} />
+          <Route path="/updatelisting/:listingid" element={<UpdateListing />} />
         </Route>
       </Routes>
       <ToastContainer position="bottom-right" />

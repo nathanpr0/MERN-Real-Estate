@@ -3,6 +3,7 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { FaBed, FaBath, FaPencilAlt, FaTrash } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 // IMPORT FIREBASE
 import { app } from "../firebase.js";
@@ -97,50 +98,58 @@ export default function UserListing({ userListing, setListing }) {
             Anda belum membuat Listing
           </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {userListing.map((value) => (
-              <section
-                key={value._id}
-                className="flex flex-col justify-between bg-sky-700 rounded-3xl text-white shadow-lg shadow-gray-400"
-              >
-                <figure className="relative bg-black rounded-3xl ">
-                  <img
-                    src={value.imagesURL[0]}
-                    className="relative h-52 w-full object-cover rounded-3xl opacity-60"
-                  />
-                  <div className="w-full absolute top-5 flex flex-row justify-between px-5">
-                    <FaTrash
-                      onClick={() => handleDeleteListing(value._id, value.imagesURL)}
-                      className="text-xl cursor-pointer"
+          userListing.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {userListing.map((value) => (
+                <section
+                  key={value._id}
+                  className="flex flex-col justify-between bg-sky-700 rounded-3xl text-white shadow-lg shadow-gray-400"
+                >
+                  <figure className="relative bg-black rounded-3xl ">
+                    <img
+                      src={value.imagesURL[0]}
+                      className="relative h-52 w-full object-cover rounded-3xl opacity-60"
                     />
-                    <FaPencilAlt className="text-xl cursor-pointer" />
-                  </div>
-                </figure>
-                <article className="flex flex-col px-5 pt-4 pb-6 h-full">
-                  <section className="mb-3 overflow-hidden">
-                    <h2 className="text-xl font-bold">{value.name}</h2>
-                    <p className="text-sm pt-3">{value.description}</p>
-                  </section>
-                </article>
-                <article className="px-5 py-3 border-solid border-white border-t-2">
-                  <div className="flex flex-row justify-between gap-x-3">
-                    <section className="flex gap-2">
-                      <p className="text-sm font-bold">{value.bedrooms}</p>
-                      <FaBed className="text-xl" />
-                      <p className="text-sm font-bold">{value.bathrooms}</p>
-                      <FaBath className="text-xl" />
+
+                    <div className="w-full absolute top-5 flex flex-row justify-between px-5">
+                      <FaTrash
+                        onClick={() => handleDeleteListing(value._id, value.imagesURL)}
+                        className="text-xl cursor-pointer"
+                      />
+                      <Link to={`/updatelisting/${value._id}`}>
+                        <FaPencilAlt className="text-xl cursor-pointer" />
+                      </Link>
+                    </div>
+                  </figure>
+
+                  <article className="flex flex-col px-5 pt-4 pb-6 h-full">
+                    <section className="mb-3 overflow-hidden">
+                      <h2 className="text-xl font-bold">{value.name}</h2>
+                      <p className="text-sm pt-3">{value.description}</p>
                     </section>
-                    <p className="text-sm">
-                      Price:{" "}
-                      <span className="font-bold">
-                        Rp. {new Intl.NumberFormat("id-ID").format(value.regularPrice)}
-                      </span>
-                    </p>
-                  </div>
-                </article>
-              </section>
-            ))}
-          </div>
+                  </article>
+
+                  <article className="px-5 py-3 border-solid border-white border-t-2">
+                    <div className="flex flex-row justify-between gap-x-3">
+                      <section className="flex gap-2">
+                        <p className="text-sm font-bold">{value.bedrooms}</p>
+                        <FaBed className="text-xl" />
+                        <p className="text-sm font-bold">{value.bathrooms}</p>
+                        <FaBath className="text-xl" />
+                      </section>
+
+                      <p className="text-sm">
+                        Price:{" "}
+                        <span className="font-bold">
+                          Rp. {new Intl.NumberFormat("id-ID").format(value.regularPrice)}
+                        </span>
+                      </p>
+                    </div>
+                  </article>
+                </section>
+              ))}
+            </div>
+          )
         )}
       </div>
     </main>
