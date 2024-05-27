@@ -98,8 +98,16 @@ export default function CreateListing() {
           setUploading(false);
           setImageUploadError(false);
         })
-        .catch(() => {
-          setImageUploadError("Batas ukuran File Maksimal 2mb/gambar!");
+        .catch((error) => {
+          let errorMessage;
+          if (error.message.includes("File size")) {
+            errorMessage = "Batas ukuran File Maksimal 2mb/gambar!";
+          } else if (error.message.includes("Network Error")) {
+            errorMessage = "Koneksi internet terputus, coba lagi nanti!";
+          } else {
+            errorMessage = "Terjadi kesalahan, silakan coba lagi!";
+          }
+          setImageUploadError(errorMessage);
           setUploading(false);
         });
     } else if (images.length === 0 && images.length + formData["imagesURL"].length < 7) {
@@ -206,10 +214,10 @@ export default function CreateListing() {
   return (
     <>
       {/* LISTING CREATED RIGHT CONTAINER */}
-
       <form
         onSubmit={handleFormSubmit}
-        className="w-full bg-white p-10 rounded-lg shadow-lg shadow-gray-400"
+        className="w-full bg-white p-10 max-sm:px-5 rounded-lg shadow-lg shadow-gray-400"
+        method="post"
       >
         <h1 className="text-2xl text-gray-700 font-semibold mb-4">Listing Page</h1>
         {/* INPUT NAMA */}
@@ -233,13 +241,13 @@ export default function CreateListing() {
         {/* INPUT DESKRIPSI */}
         <section className="flex flex-col gap-4 mt-4">
           <label htmlFor="description" className="block text-md font-medium text-gray-700">
-            Deskripsi <span className="text-sm">(Max: 200 Words)</span>
+            Deskripsi <span className="text-sm">(Max: 300 Words)</span>
           </label>
           <textarea
             required
             name="description"
             id="description"
-            maxLength="200"
+            maxLength="300"
             placeholder="Deskripsi"
             className="w-full shadow-md border-solid border-sky-600 border-2 rounded px-4 py-3 focus:outline-sky-800"
             value={formData.description}

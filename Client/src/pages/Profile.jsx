@@ -238,11 +238,12 @@ export default function Profile() {
 
   return (
     <>
-      <div className="flex flex-col gap-5 p-14 lg:flex-row max-sm:px-3 justify-center items-start min-h-screen bg-gray-100">
+      <div className="flex flex-col gap-5 p-14 lg:flex-row max-lg:px-5 max-sm:px-3 justify-center items-start min-h-screen bg-gray-100">
         {/* LEFT CONTAINER */}
         <form
           onSubmit={submitUpdateHandle}
-          className="w-[30vw] max-lg:w-full bg-white p-10 rounded-lg shadow-lg shadow-gray-400 flex-shrink-0"
+          className="w-[30vw] max-lg:w-full bg-white p-10 max-sm:px-5 rounded-lg shadow-lg shadow-gray-400 flex-shrink-0"
+          method="post"
         >
           <input
             type="file"

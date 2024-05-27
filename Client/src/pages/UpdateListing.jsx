@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 
 // IMPORT REACT REDUX
 import { useSelector } from "react-redux";
@@ -224,6 +224,7 @@ export default function UpdateListing() {
       <form
         onSubmit={handleFormSubmit}
         className="w-full bg-white p-10 rounded-lg shadow-lg shadow-gray-400"
+        method="post"
       >
         <h1 className="text-2xl text-gray-700 font-semibold mb-4 text-center">Update Listing</h1>
         {/* INPUT NAMA */}
@@ -247,13 +248,13 @@ export default function UpdateListing() {
         {/* INPUT DESKRIPSI */}
         <section className="flex flex-col gap-4 mt-4">
           <label htmlFor="description" className="block text-md font-medium text-gray-700">
-            Deskripsi <span className="text-sm">(Max: 200 Words)</span>
+            Deskripsi <span className="text-sm">(Max: 300 Words)</span>
           </label>
           <textarea
             required
             name="description"
             id="description"
-            maxLength="200"
+            maxLength="300"
             placeholder="Deskripsi"
             className="w-full shadow-md border-solid border-sky-600 border-2 rounded px-4 py-3 focus:outline-sky-800"
             value={formData.description}
@@ -518,8 +519,8 @@ export default function UpdateListing() {
             );
           })}
 
-        {/* CREATE LISTING BUTTON */}
-        <section className="mt-8">
+        {/* UPDATE LISTING BUTTON */}
+        <section className="flex flex-col gap-4 mt-8">
           <button
             disabled={loading}
             type="submit"
@@ -527,6 +528,15 @@ export default function UpdateListing() {
           >
             {loading ? "Loading..." : "Update Listing"}
           </button>
+
+          <Link to={"/profile"}>
+            <button
+              type="button"
+              className="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              Cancel
+            </button>
+          </Link>
         </section>
       </form>
     </main>

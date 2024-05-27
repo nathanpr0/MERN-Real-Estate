@@ -104,6 +104,7 @@ export default function SignIn() {
         <form
           className="w-[60vw] max-sm:w-[80vw] bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
           onSubmit={handleSubmit}
+          method="post"
         >
           <h2 className="text-center text-2xl font-semibold mb-6">Masuk</h2>
 
