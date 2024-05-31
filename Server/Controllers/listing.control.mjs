@@ -82,7 +82,7 @@ export default class listingController {
 
         if (!response) {
           return res.status(404).json({
-            not_found: "Listing tidak ditemukan, gagal untuk menghapus data!",
+            not_found: "Listing tidak ditemukan!",
           });
         }
 
@@ -96,6 +96,60 @@ export default class listingController {
         res.status(200).json(response);
 
         return;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    });
+  }
+
+  fetch() {
+    return asyncHandler(async (req, res) => {
+      try {
+        const response = await ListingModel.find();
+
+        if (!response) {
+          return res.status(404).json({
+            not_found: "Listing tidak ditemukan!",
+          });
+        }
+
+        res.status(200).json(response);
+
+        return;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    });
+  }
+
+  fetchDetails() {
+    return asyncHandler(async (req, res) => {
+      try {
+        const response = await ListingModel.findById(req.params.id);
+        res.status(200).json(response);
+
+        return;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    });
+  }
+
+  fetchRecommend() {
+    return asyncHandler(async (req, res) => {
+      try {
+        const { id } = req.params;
+        const response = await ListingModel.find({ _id: { $ne: id } });
+
+        if (!response) {
+          return res.status(404).json({
+            not_found: "Listing tidak ditemukan!",
+          });
+        }
+
+        // Handle the case when listings are found
+        // For example:
+        return res.status(200).json(response);
       } catch (error) {
         throw new Error(error.message);
       }

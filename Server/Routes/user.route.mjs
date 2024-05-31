@@ -12,4 +12,7 @@ userRouter.delete("/delete/:id", verifyToken, UserController.deleteUserInfo());
 // READ USER CREATED LISTING
 userRouter.get("/readlistings/:id", verifyToken, UserController.readUserListing());
 
+// GET CONTACT LANDLORD
+userRouter.get("/contact/:id", verifyToken, UserController.getContact());
+
 export default userRouter;

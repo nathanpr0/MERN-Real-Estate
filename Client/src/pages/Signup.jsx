@@ -58,27 +58,42 @@ export default function SignUp() {
       setLoading(true);
       dispatch(signStart());
 
-      // AUTH EMAIL PROVIDER
       const auth = getAuth(app);
+      let backendResponse;
+
+      // HANDLING SIGN UP BACKEND API BEFORE FIREBASE AUTH
+      try {
+        backendResponse = await axios.post(
+          import.meta.env.VITE_SIGN_UP_API,
+          {
+            username,
+            email,
+            password,
+          },
+          { withCredentials: true }
+        );
+      } catch (error) {
+        setLoading(false);
+        if (error.response && error.response.status === 409) {
+          dispatch(signFailure(error.response.data));
+          const { error: errorMessage } = error.response.data;
+          toast.error(errorMessage);
+        } else {
+          dispatch(signFailure(error.message));
+          toast.error(error.message);
+        }
+
+        return;
+      }
+
+      // FIREBASE HANDLING SIGN UP AUTH
       await setPersistence(auth, browserLocalPersistence);
       await createUserWithEmailAndPassword(auth, email, password);
 
-      // Check if user is authenticated
+      // CHECT THE USER IF AUTHENTICATED
       onAuthStateChanged(auth, async (user) => {
         if (user) {
-          const { email } = user;
-
-          const response = await axios.post(
-            import.meta.env.VITE_SIGN_UP_API,
-            {
-              username,
-              email,
-              password,
-            },
-            { withCredentials: true }
-          );
-
-          dispatch(signSuccess(response.data));
+          dispatch(signSuccess(backendResponse.data));
           toast.success("Account Successfully Created");
           setLoading(false);
 
@@ -89,14 +104,8 @@ export default function SignUp() {
       return;
     } catch (error) {
       setLoading(false);
-      if (error.response && error.response.status === 409) {
-        dispatch(signFailure(error.response.data));
-        const { error: errorMessage } = error.response.data;
-        toast.error(errorMessage);
-      } else {
-        dispatch(signFailure(error.message));
-        toast.error(error.message);
-      }
+      dispatch(signFailure(error.message));
+      toast.error(error.message);
 
       return;
     }

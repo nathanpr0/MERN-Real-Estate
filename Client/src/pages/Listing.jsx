@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+
+// IMPORT COMPONENTS
+import Recommendation from "../components/Recommendation.jsx";
+import Contact from "../components/Contact.jsx";
+
+// IMPORT REACT-ICONS
 import { IoMdArrowRoundForward, IoMdArrowRoundBack } from "react-icons/io";
-import { FaBed, FaBath, FaMapMarkerAlt } from "react-icons/fa";
+import { FaBed, FaBath, FaMapMarkerAlt, FaParking, FaEnvelope, FaTimes } from "react-icons/fa";
+import { GiSofa } from "react-icons/gi";
 import { GoChecklist } from "react-icons/go";
 
 // IMPORT SWIPER FOR IMAGE SLIDER
@@ -19,9 +27,23 @@ import "swiper/css/navigation";
 export default function Listing() {
   SwiperCore.use({ Navigation, Pagination });
 
-  const params = useParams();
+  // CONTACT LANDLORD BUTTON
+  const [isContactFormVisible, setIsContactFormVisible] = useState(false);
+  const toggleContactForm = () => {
+    setIsContactFormVisible(!isContactFormVisible);
+  };
 
+  // USER PERSIST ACCOUNT
+  const { currentUser } = useSelector((state) => state.user);
+  // LISTING ID FROM ROUTER
+  const params = useParams();
+  const listingid = params.listingid;
+
+  // USER LISTINGS DATA
   const [userListing, setUserListing] = useState("");
+  const [landLord, setLandLord] = useState("");
+  const [message, setMessage] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [pageError, setError] = useState(false);
 
@@ -29,11 +51,13 @@ export default function Listing() {
     async function fetchUserListing() {
       try {
         setLoading(true);
-        const listingid = params.listingid;
 
-        const response = await axios.get(import.meta.env.VITE_GET_LISTING + listingid, {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          import.meta.env.VITE_MAIN_PAGE_LISTING_DETAILS + listingid,
+          {
+            withCredentials: true,
+          }
+        );
         setUserListing(response.data);
         setLoading(false);
         setError(false);
@@ -49,7 +73,7 @@ export default function Listing() {
     }
 
     fetchUserListing();
-  }, [params.listingid]);
+  }, [listingid]);
 
   return (
     <>
@@ -61,10 +85,10 @@ export default function Listing() {
         </p>
       ) : (
         userListing && (
-          <main className="container m-auto max-sm:m-0 px-7 max-sm:px-4 py-10">
+          <main className="flex flex-col gap-14 max-sm:m-0 px-14 max-lg:px-5 max-sm:px-3 py-10">
             <section className="flex max-lg:flex-col justify-between bg-white rounded-lg shadow-lg shadow-gray-400 overflow-hidden">
               {/* IMAGES SLIDER */}
-              <figure className="w-1/2 max-lg:w-full">
+              <figure className="w-1/2 bg-black max-lg:w-full">
                 <Swiper
                   className="relative group"
                   navigation={{ nextEl: ".next-slide", prevEl: ".prev-slide" }}
@@ -77,7 +101,11 @@ export default function Listing() {
                     <SwiperSlide key={index}>
                       <div
                         className="h-[26rem]"
-                        style={{ background: `url(${image}) center no-repeat` }}
+                        style={{
+                          background: `url(${image}) center no-repeat`,
+                          backgroundSize: "cover",
+                          opacity: 0.9,
+                        }}
                       ></div>
                     </SwiperSlide>
                   ))}
@@ -94,24 +122,30 @@ export default function Listing() {
 
               {/* DESCRIPTION */}
               <article className="flex flex-col justify-between w-1/2 max-lg:w-full p-6 overflow-y-auto">
-                <div className="flex flex-col justify-start mb-2">
+                <div className="flex flex-col gap-2 justify-start mb-2">
                   <h2 className="text-2xl font-semibold">{userListing.name}</h2>
-                  <p className="text-sm font-semibold flex items-center">
-                    {userListing.types} | {userListing.lot} |{" "}
+
+                  <p className="text-sm font-semibold flex flex-wrap items-center gap-y-2">
+                    <span className="bg-blue-100 text-blue-800 rounded-md px-2 py-1 mr-1">
+                      {userListing.types}
+                    </span>
+                    <span className="bg-green-100 text-green-800 rounded-md px-2 py-1 mr-1">
+                      {userListing.lot}
+                    </span>
                     {userListing.furnished && (
-                      <>
-                        Furnished <GoChecklist className="inline mx-1" />
-                      </>
+                      <span className="flex flex-row items-center ml-1 gap-x-1 bg-yellow-100 text-yellow-800 rounded-md px-2 py-1">
+                        Furnished <GiSofa />
+                      </span>
                     )}
                     {userListing.parking && (
-                      <>
-                        | Parking Spot <GoChecklist className="inline ml-1" />
-                      </>
+                      <span className="flex flex-row items-center ml-1 gap-x-1 bg-purple-100 text-purple-800 rounded-md px-2 py-1">
+                        Parking Spot <FaParking />
+                      </span>
                     )}
                     {userListing.offer && (
-                      <>
-                        | Offer <GoChecklist className="inline ml-1" />
-                      </>
+                      <span className="flex flex-row items-center ml-1 gap-x-1 bg-red-100 text-red-800 rounded-md px-2 py-1">
+                        Offer <GoChecklist />
+                      </span>
                     )}
                   </p>
                 </div>
@@ -124,7 +158,7 @@ export default function Listing() {
                     <p className="text-gray-600">{userListing.address}</p>
                   </section>
 
-                  <section className="flex flex-row justify-between gap-2 px-4">
+                  <section className="flex flex-row flex-wrap justify-between gap-2 px-4">
                     <div className="flex flex-row gap-x-3">
                       <div className="flex flex-row gap-x-2">
                         <p className="text-sm">{userListing.bedrooms}</p>
@@ -137,28 +171,77 @@ export default function Listing() {
                       </div>
                     </div>
 
-                    <p className="text-sm truncate">
-                      Price:{" "}
-                      <span className="font-bold text-gray-800">
-                        Rp. {new Intl.NumberFormat("id-ID").format(userListing.regularPrice)}
-                      </span>
-                    </p>
-
-                    {userListing.offer && (
-                      <p className="text-sm truncate">
-                        Discount Price:{" "}
+                    <div className="flex flex-row gap-x-3">
+                      <p className="text-sm">
+                        Price:{" "}
                         <span className="font-bold text-gray-800">
-                          Rp. {new Intl.NumberFormat("id-ID").format(userListing.discountPrice)}
+                          Rp. {new Intl.NumberFormat("id-ID").format(userListing.regularPrice)}
                         </span>
                       </p>
-                    )}
+                      {userListing.offer && (
+                        <p className="text-sm">
+                          Discount:{" "}
+                          <span className="font-bold text-gray-800">
+                            Rp. {new Intl.NumberFormat("id-ID").format(userListing.discountPrice)}
+                          </span>
+                        </p>
+                      )}
+                    </div>
                   </section>
                 </div>
               </article>
             </section>
+
+            {/* CONTACT LANDLORD */}
+            {currentUser && userListing.created_by_user !== currentUser._id && (
+              <>
+                <button
+                  type="button"
+                  onClick={toggleContactForm}
+                  className="fixed bottom-5 right-12 bg-sky-600 text-white p-3 rounded-full shadow-lg z-50"
+                >
+                  {isContactFormVisible ? <FaTimes size={20} /> : <FaEnvelope size={20} />}
+                </button>
+                {isContactFormVisible && (
+                  <section className="fixed bottom-20 right-20 bg-white rounded-lg shadow-lg shadow-gray-400 p-6 z-50 w-80">
+                    <h3 className="text-xl font-semibold text-center mb-4">Contact Landlord</h3>
+
+                    <form method="post" className="flex flex-col gap-4">
+                      <Contact
+                        landLord_listing={userListing}
+                        stateLandLord={landLord}
+                        actionLandLord={setLandLord}
+                      />
+
+                      <label className="flex flex-col">
+                        <span className="text-sm font-medium text-gray-700 mb-2">Message</span>
+                        <textarea
+                          id="message"
+                          name="message"
+                          value={message}
+                          onChange={(e) => setMessage( e.target.value)}
+                          className="shadow-md border-solid border-sky-600 border-2 rounded p-2 focus:outline-sky-800 h-32 resize-none"
+                          placeholder="Enter your message here..."
+                          required
+                        ></textarea>
+                      </label>
+
+                      <Link
+                        to={`mailto:${landLord.email}?subject:${userListing.name}&body=${message}`}
+                        className="bg-sky-600 text-white text-center rounded-md p-2 font-semibold hover:bg-sky-700 transition-all"
+                      >
+                        Send Message
+                      </Link>
+                    </form>
+                  </section>
+                )}
+              </>
+            )}
           </main>
         )
       )}
+
+      <Recommendation fetchListing={import.meta.env.VITE_MAIN_RECOMMEND_LISTING + listingid} />
     </>
   );
 }

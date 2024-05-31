@@ -182,19 +182,30 @@ export default function UpdateListing() {
         })
       ).data.imagesURL;
 
-      //   MELAKUKAN FILTER SUPAYA HANYA MENGHAPUS FILE YANG TIDAK ADA URLNYA DARI STATE FORMDATA DARI FUNCTION handleDeleteImage
+      //  MELAKUKAN FILTER SUPAYA HANYA MENGHAPUS FILE YANG TIDAK ADA URLNYA DARI STATE FORMDATA DARI FUNCTION handleDeleteImage
       const imagesToDelete = existingImages.filter(
         (imageUrl) => !formData.imagesURL.includes(imageUrl)
       );
 
-      //   UPDATING DATA
-      await axios.put(
-        `${import.meta.env.VITE_UPDATE_LISTING}${listingId}`,
-        { ...formData, created_by_user: currentAccount._id },
-        { withCredentials: true }
-      );
+      //  UPDATING DATA BACKEND API
+      try {
+        await axios.put(
+          `${import.meta.env.VITE_UPDATE_LISTING}${listingId}`,
+          { ...formData, created_by_user: currentAccount._id },
+          { withCredentials: true }
+        );
+      } catch (error) {
+        setLoading(false);
+        if (error.response && error.response.status === 401) {
+          toast.error(error.response.data);
+        } else if (error.response && error.response.status === 404) {
+          toast.error(error.response.data);
+        } else {
+          toast.error(error.message);
+        }
+      }
 
-      //   DELETE FILE IMAGES STORAGE YANG SUDAH DI FILTER OLEH imagesToDelete
+      //  DELETE FILE IMAGES STORAGE YANG SUDAH DI FILTER OLEH imagesToDelete
       const storage = getStorage(app);
       for (const imageUrl of imagesToDelete) {
         const url = new URL(imageUrl);
@@ -431,7 +442,7 @@ export default function UpdateListing() {
 
             <div className="flex flex-col gap-3">
               <label htmlFor="regularPrice" className="text-sm">
-                Regular Price (Rp/bln)
+                Regular Price (Rp)
               </label>
               <input
                 required
@@ -448,7 +459,7 @@ export default function UpdateListing() {
             {formData.offer && (
               <div className="flex flex-col gap-3">
                 <label htmlFor="discountPrice" className="text-sm">
-                  Discount Price (Rp/bln)
+                  Discount Price (Rp)
                 </label>
                 <input
                   required

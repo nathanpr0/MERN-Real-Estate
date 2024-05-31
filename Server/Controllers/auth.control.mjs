@@ -52,7 +52,6 @@ export default class AuthController {
         if (!response) {
           res.status(404).json({
             error: "Data Akun tidak ditemukan!",
-            status: 404,
             email: `${email} NOT FOUND!`,
           });
 
@@ -139,7 +138,7 @@ export default class AuthController {
 
           // SIGN UP USER ACCOUNT USING GOOGLE ACCOUNT TO DATABASE
           const response = await UserModel.create({
-            username: username.split(" ").join("").toLowerCase(),
+            username: username,
             email: email,
             password: hashedPassword,
             avatar: req.body.avatar,

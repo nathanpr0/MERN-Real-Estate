@@ -424,7 +424,7 @@ export default function CreateListing() {
 
             <div className="flex flex-col gap-3">
               <label htmlFor="regularPrice" className="text-sm">
-                Regular Price (Rp/bln)
+                Regular Price (Rp)
               </label>
               <input
                 required
@@ -441,7 +441,7 @@ export default function CreateListing() {
             {formData.offer && (
               <div className="flex flex-col gap-3">
                 <label htmlFor="discountPrice" className="text-sm">
-                  Discount Price (Rp/bln)
+                  Discount Price (Rp)
                 </label>
                 <input
                   required

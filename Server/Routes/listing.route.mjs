@@ -10,4 +10,9 @@ listingRouter.delete("/delete/:id", verifyToken, listingControl.delete());
 listingRouter.put("/update/:id", verifyToken, listingControl.update());
 listingRouter.get("/get/:id", verifyToken, listingControl.get());
 
+// FETCHING LISTING FOR MAIN PAGE
+listingRouter.get("/fetchlistings", listingControl.fetch());
+listingRouter.get("/fetchlistingsdetails/:id", listingControl.fetchDetails());
+listingRouter.get("/fetchlistingsrecommend/:id", listingControl.fetchRecommend());
+
 export default listingRouter;

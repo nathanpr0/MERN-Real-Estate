@@ -86,4 +86,25 @@ export default class UserController {
       }
     });
   }
+
+  static getContact() {
+    return asyncHandler(async (req, res) => {
+      const { id } = req.params;
+
+      try {
+        const response = await UserModel.findById(id);
+
+        if (!response) {
+          return res.status(404).json({ error: "User Not Found" });
+        }
+
+        const { password: pass, ...user } = response._doc;
+        res.status(200).json(user);
+
+        return;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    });
+  }
 }

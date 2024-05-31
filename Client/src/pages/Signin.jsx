@@ -45,55 +45,59 @@ export default function SignIn() {
 
           // AUTH EMAIL PROVIDER
           const auth = getAuth(app);
+          let backendResponse;
+
+          // MELAKUKAN AUTHENTICATION LOGIN BACKEND API TERLEBIH DAHULU
+          try {
+            backendResponse = await axios.post(
+              import.meta.env.VITE_SIGN_IN_API,
+              {
+                email: value.email,
+                password: value.password,
+              },
+              { withCredentials: true }
+            );
+          } catch (backendError) {
+            setLoading(false);
+
+            if (backendError.response && backendError.response.status === 404) {
+              dispatch(signFailure(backendError.response.data));
+              const { error: errorMessage, email: errorEmail } = backendError.response.data;
+
+              toast.error(errorMessage);
+              toast.error(errorEmail);
+            } else if (backendError.response && backendError.response.status === 401) {
+              dispatch(signFailure(backendError.response.data));
+
+              const { error: errorMessage } = backendError.response.data;
+              toast.error(errorMessage);
+            } else {
+              dispatch(signFailure(backendError.message));
+              toast.error(backendError.message);
+            }
+
+            return;
+          }
+
+          //  JIKA AUTHENTICATION BACKEND SUKSES LANJUT KE FIREBASE AUTH
           await signInWithEmailAndPassword(auth, value.email, value.password);
 
           onAuthStateChanged(auth, async (user) => {
             if (user) {
-              const { email } = user;
-
-              const response = await axios.post(
-                import.meta.env.VITE_SIGN_IN_API,
-                {
-                  email: email,
-                  password: value.password,
-                },
-                { withCredentials: true }
-              );
-
+              // Jika berhasil login ke Firebase, gunakan respons dari backend
               toast.success("Account Successfully Log In");
-              dispatch(signSuccess(response.data));
+              dispatch(signSuccess(backendResponse.data));
               setLoading(false);
 
               navigate("/");
             }
           });
-
-          return;
         } catch (error) {
           setLoading(false);
 
-          if (error.response && error.response.status === 404) {
-            dispatch(signFailure(error.response.data));
-            const {
-              error: errorMessage,
-              status: errorStatus,
-              email: errorEmail,
-            } = error.response.data;
-
-            toast.error(errorMessage);
-            toast.error("status: " + errorStatus);
-            toast.error(errorEmail);
-          } else if (error.response && error.response.status === 401) {
-            dispatch(signFailure(error.response.data));
-
-            const { error: errorMessage } = error.response.data;
-            toast.error(errorMessage);
-            return;
-          } else {
-            dispatch(signFailure(error.message));
-            toast.error(error.message);
-            return;
-          }
+          // Tangani error lainnya
+          dispatch(signFailure(error.message));
+          toast.error(error.message);
         }
     }
   }

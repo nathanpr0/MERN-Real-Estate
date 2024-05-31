@@ -7,16 +7,15 @@ import { MdClose } from "react-icons/md";
 
 // PROPS VALIDATION
 UserProfile.propTypes = {
-  usernameData: propTypes.string,
-  emailData: propTypes.string,
+  usernameData: propTypes.any,
+  emailData: propTypes.any,
   usernameOnChange: propTypes.func,
   emailOnChange: propTypes.func,
 };
 
-export default function UserProfile({ usernameData, emailData, usernameOnChange, emailOnChange }) {
+export default function UserProfile({ usernameData, emailData, usernameOnChange }) {
   // PROFILE INPUT FOCUS STATE
   const inputRefUserName = useRef(null);
-  const inputRefEmail = useRef(null);
   const [focusInput, setFocusInput] = useState({ username: true, email: true });
 
   // HANDLER FUNCTION FOR ICON FOCUS & BLUR ONCLICK
@@ -34,22 +33,6 @@ export default function UserProfile({ usernameData, emailData, usernameOnChange,
       username: true,
     }));
     inputRefUserName.current.blur();
-  };
-
-  const handleFocusEmail = () => {
-    setFocusInput((prevFocusInput) => ({
-      ...prevFocusInput,
-      email: false,
-    }));
-    inputRefEmail.current.focus();
-  };
-
-  const handleBlurEmail = () => {
-    setFocusInput((prevFocusInput) => ({
-      ...prevFocusInput,
-      email: true,
-    }));
-    inputRefEmail.current.blur();
   };
 
   return (
@@ -95,23 +78,13 @@ export default function UserProfile({ usernameData, emailData, usernameOnChange,
             type="email"
             className="mt-1 text-lg py-3 w-full font-semibold text-gray-900 
             read-only:focus:outline-none read-only:focus:shadow-none read-only:focus:px-0  
-            focus:outline-sky-800 focus:shadow-md focus:px-3"
+            focus:outline-sky-800"
             id="email"
             name="email"
             autoComplete="off"
             defaultValue={emailData}
-            onChange={emailOnChange}
-            readOnly={focusInput["email"]}
-            ref={inputRefEmail}
-            onBlur={() => {
-              setFocusInput((prevFocusInput) => ({ ...prevFocusInput, email: true }));
-            }}
+            readOnly={true}
           />
-          {focusInput["email"] ? (
-            <FaPencilAlt onClick={handleFocusEmail} className="cursor-pointer" />
-          ) : (
-            <MdClose onClick={handleBlurEmail} className="cursor-pointer" />
-          )}
         </div>
       </div>
     </>
