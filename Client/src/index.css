@@ -2,8 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: rgb(235, 235, 235);
+  scroll-behavior: smooth;
 }
 
 input[type="search"]::-webkit-search-cancel-button {
@@ -25,8 +30,14 @@ input[type="search"]::-webkit-search-cancel-button {
 
 /* MAIN BANNER IMAGE */
 .banner {
-  background: linear-gradient(110deg, rgba(20, 143, 209, 0.6), rgba(3, 106, 161, 0.3)),
-    url("Banner.jpg");
+  background: linear-gradient(
+      90deg,
+      rgb(3, 106, 161),
+      rgba(3, 105, 161, 0.7),
+      rgba(3, 105, 161, 0.8),
+      rgb(3, 106, 161)
+    ),
+    url("Banner.webp");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;

@@ -20,19 +20,19 @@ export default function Header() {
               tablet || mobile ? "shadow-none" : "shadow-xl"
             } flex items-center justify-around gap-4 selection:bg-white 
             selection:bg-opacity-80 selection:text-gray-700 bg-sky-700 text-white 
-            px-6 py-5 font-bold transition-all duration-300 ease-in-out w-full`}
+            px-6 py-[0.6rem] font-bold transition-all duration-300 ease-in-out w-full`}
           >
             <div>
               <Link to="/">
-                <h1 className="text-[2.1rem] max-lg:text-3xl cursor-pointer ">
+                <h1 className="text-[2.1rem] max-lg:text-3xl max-sm:text-2xl cursor-pointer ">
                   <span className="text-blue-200">House</span>Dreamer
                 </h1>
               </Link>
             </div>
 
             <form
-              className="bg-white w-80 max-lg:w-72 max-sm:hidden flex justify-between px-6 py-2 
-              max-sm:py-[0.15rem] max-lg:py-1 items-center rounded-3xl gap-4"
+              className="bg-white w-80 max-lg:w-72 max-sm:hidden flex justify-between px-6 py-1 
+              max-lg:py-[0.2rem] max-sm:py-[0.15rem] items-center rounded-3xl gap-4"
             >
               <input
                 className="placeholder:text-black text-black placeholder:font-normal font-normal 
@@ -65,6 +65,7 @@ export default function Header() {
                   About
                 </li>
               </Link>
+
               {currentUser ? (
                 <Link to={"/profile"}>
                   <img
@@ -89,7 +90,7 @@ export default function Header() {
 
             <FaBars
               onClick={() => setMobile((click) => !click)}
-              className="sm:hidden max-sm:inline-block cursor-pointer text-2xl"
+              className="sm:hidden max-sm:inline-block cursor-pointer text-xl"
             />
           </div>
 
@@ -97,7 +98,7 @@ export default function Header() {
           <nav
             className={`absolute ${
               tablet ? "top-full shadow-xl" : "-top-full shadow-none"
-            } lg:hidden max-sm:hidden p-6 bg-sky-700
+            } lg:hidden max-sm:hidden p-5 bg-sky-700
             transition-all duration-300 ease-in-out -z-10 w-full`}
           >
             <ul className="flex items-center justify-center gap-10 text-white font-bold text-lg">
@@ -106,11 +107,13 @@ export default function Header() {
                   Home
                 </li>
               </Link>
+
               <Link to="/about">
                 <li className="cursor-pointer border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
                   About
                 </li>
               </Link>
+
               {currentUser ? (
                 <Link to={"/profile"}>
                   <img
@@ -136,8 +139,8 @@ export default function Header() {
             } sm:hidden max-sm:visible bg-sky-700 shadow-xl 
             transition-all duration-300 ease-in-out -z-10 w-full`}
           >
-            <div className="flex flex-col justify-center px-3 py-6 items-center gap-5">
-              <form className="bg-white w-72 sm:hidden flex justify-between px-6 py-1 items-center rounded-3xl gap-4">
+            <div className="flex flex-col justify-center px-3 py-[0.6rem] items-center gap-5">
+              <form className="bg-white w-72 sm:hidden flex justify-between px-6 py-[0.15rem] items-center rounded-3xl gap-4">
                 <input
                   className="placeholder:text-black text-black placeholder:font-normal font-normal focus:outline-none"
                   type="search"
@@ -153,12 +156,12 @@ export default function Header() {
 
               <ul className="flex items-center justify-center gap-10 text-white font-bold">
                 <Link to="/">
-                  <li className="cursor-pointer border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
+                  <li className="cursor-pointer text-sm border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
                     Home
                   </li>
                 </Link>
                 <Link to="/about">
-                  <li className="cursor-pointer border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
+                  <li className="cursor-pointer text-sm border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
                     About
                   </li>
                 </Link>
@@ -172,7 +175,7 @@ export default function Header() {
                   </Link>
                 ) : (
                   <Link to="/sign-in">
-                    <li className="cursor-pointer border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
+                    <li className="cursor-pointer text-sm border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
                       Sign In
                     </li>
                   </Link>

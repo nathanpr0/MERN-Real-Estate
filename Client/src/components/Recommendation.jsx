@@ -46,7 +46,9 @@ export default function Recommendation({ fetchListing }) {
   return (
     <main className="w-full p-14 max-lg:px-5 max-sm:px-3">
       <div className="bg-white p-10 max-sm:px-5 rounded-lg shadow-lg shadow-gray-400">
-        <h1 className="text-4xl text-gray-700 text-center font-semibold mb-10">Recommendation</h1>
+        <h1 className="text-4xl max-sm:text-2xl text-gray-700 text-center font-semibold mb-10">
+          Recommendation
+        </h1>
 
         {loading ? (
           <p className="text-sky-600 text-lg text-center font-semibold mb-5">Page is Loading...</p>
