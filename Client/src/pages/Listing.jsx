@@ -268,7 +268,8 @@ export default function Listing() {
                           name="message"
                           value={message}
                           onChange={(e) => setMessage(e.target.value)}
-                          className="shadow-md border-solid border-sky-600 border-2 rounded p-2 focus:outline-sky-800 h-32 resize-none"
+                          className="shadow-md border-solid border-sky-600 border-2 rounded p-2 focus:outline-sky-800"
+                          rows={5}
                           placeholder="Enter your message here..."
                           required
                         ></textarea>

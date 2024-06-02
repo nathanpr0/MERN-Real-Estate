@@ -3,6 +3,7 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 
 // REACT ICONS
 import { FaBed, FaBath, FaPencilAlt, FaTrash, FaParking, FaMapMarkerAlt } from "react-icons/fa";
@@ -54,52 +55,62 @@ export default function UserListing({ userListing, setListing }) {
    * @param {String[]} imageurl
    */
   async function handleDeleteListing(listingId, imageurl) {
-    try {
-      setLoading(true);
+    const deleteWarning = Swal.fire({
+      title: `Apakah Anda yakin ingin menghapus listing ini?`,
+      text: "Tindakan ini tidak dapat dibatalkan. Apakah Anda yakin ingin menghapus listing ini?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, saya Yakin",
+    });
 
-      // DELETE LISTING FROM BACKEND API
+    if (deleteWarning.isConfirmed) {
       try {
-        await axios.delete(import.meta.env.VITE_DELETE_LISTING + listingId, {
-          withCredentials: true,
-        });
+        setLoading(true);
+
+        // DELETE LISTING FROM BACKEND API
+        try {
+          await axios.delete(import.meta.env.VITE_DELETE_LISTING + listingId, {
+            withCredentials: true,
+          });
+        } catch (error) {
+          setLoading(false);
+          if (error.response && error.response.status === 401) {
+            toast.error(error.response.data);
+          } else if (error.response && error.response.status === 404) {
+            toast.error(error.response.data);
+          } else {
+            toast.error(error.message);
+          }
+
+          return;
+        }
+
+        // PARSING URL UNTUK MENDAPATKAN PATH STORAGE DARI URL FIREBASE
+        const storage = getStorage(app);
+        for (let i = 0; i < imageurl.length; i++) {
+          const url = new URL(imageurl[i]);
+          const filePathWithName = decodeURIComponent(
+            url.pathname.substring(url.pathname.lastIndexOf("/") + 1)
+          );
+
+          // DELETE FIREBASE FILE STORAGE
+          const fileRef = ref(storage, `${filePathWithName}`);
+          await deleteObject(fileRef);
+        }
+
+        // DELETE LISTING UI WITH FILTER
+        setListing(userListing.filter((listing) => listing._id !== listingId));
+        setLoading(false);
+
+        toast.success("Listing Berhasil Di Hapus");
+
+        return;
       } catch (error) {
         setLoading(false);
-        if (error.response && error.response.status === 401) {
-          toast.error(error.response.data);
-        } else if (error.response && error.response.status === 404) {
-          toast.error(error.response.data);
-        } else {
-          toast.error(error.message);
-        }
+        toast.error(error.message);
 
         return;
       }
-
-      // PARSING URL UNTUK MENDAPATKAN PATH STORAGE DARI URL FIREBASE
-      const storage = getStorage(app);
-      for (let i = 0; i < imageurl.length; i++) {
-        const url = new URL(imageurl[i]);
-        const filePathWithName = decodeURIComponent(
-          url.pathname.substring(url.pathname.lastIndexOf("/") + 1)
-        );
-
-        // DELETE FIREBASE FILE STORAGE
-        const fileRef = ref(storage, `${filePathWithName}`);
-        await deleteObject(fileRef);
-      }
-
-      // DELETE LISTING UI WITH FILTER
-      setListing(userListing.filter((listing) => listing._id !== listingId));
-      setLoading(false);
-
-      toast.success("Listing Berhasil Di Hapus");
-
-      return;
-    } catch (error) {
-      setLoading(false);
-      toast.error(error.message);
-
-      return;
     }
   }
 

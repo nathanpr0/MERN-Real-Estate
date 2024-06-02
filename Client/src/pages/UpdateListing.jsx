@@ -3,6 +3,9 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useParams, useNavigate, Link } from "react-router-dom";
 
+// IMPORT IMAGE CONVERTER
+import imageCompression from "browser-image-compression";
+
 // IMPORT REACT REDUX
 import { useSelector } from "react-redux";
 
@@ -65,6 +68,17 @@ export default function UpdateListing() {
     fetchListing();
   }, [params.listingid]);
 
+  // CONVERT FUNCTION IMAGE TO WEBP
+  async function imageConvertToWEBP(file) {
+    const options = {
+      maxSizeMB: 1, // Set ukuran maksimum file terkompresi dalam MB
+      maxWidthOrHeight: 1920, // Set lebar atau tinggi maksimum gambar terkompresi
+      useWebWorker: true, // Gunakan multi-threading untuk kompresi yang lebih cepat
+      fileType: "image/webp", // Tentukan jenis file output
+    };
+    return await imageCompression(file, options);
+  }
+
   const storeImage = (file) => {
     return new Promise((resolve, reject) => {
       const auth = getAuth();
@@ -79,22 +93,28 @@ export default function UpdateListing() {
       const storage = getStorage(app);
       const storageRef = ref(storage, `images/${uid}/${new Date().getTime() + file.name}`);
 
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      imageConvertToWEBP(file)
+        .then((webPFile) => {
+          const uploadTask = uploadBytesResumable(storageRef, webPFile);
 
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        },
-        (error) => {
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            },
+            (error) => {
+              reject(error);
+            },
+            () => {
+              getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
+                resolve(downloadUrl);
+              });
+            }
+          );
+        })
+        .catch((error) => {
           reject(error);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
-            resolve(downloadUrl);
-          });
-        }
-      );
+        });
     });
   };
 
@@ -268,6 +288,7 @@ export default function UpdateListing() {
             maxLength="300"
             placeholder="Deskripsi"
             className="w-full shadow-md border-solid border-sky-600 border-2 rounded px-4 py-3 focus:outline-sky-800"
+            rows={6}
             value={formData.description}
             onChange={handleChangeInput}
           />

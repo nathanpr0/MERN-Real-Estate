@@ -155,4 +155,52 @@ export default class listingController {
       }
     });
   }
+
+  search() {
+    return asyncHandler(async (req, res) => {
+      try {
+        const limit = parseInt(req.query.limit) || 9;
+        const startIndex = parseInt(req.query.startIndex) || 0;
+
+        let offer = req.query.offer;
+        if (offer === undefined || offer === false) {
+          offer = { $in: [false, true] };
+        }
+
+        let furnished = req.query.furnished;
+        if (furnished === undefined || furnished === false) {
+          furnished = { $in: [false, true] };
+        }
+
+        let parking = req.query.parking;
+        if (parking === undefined || parking === false) {
+          parking = { $in: [false, true] };
+        }
+
+        let types = req.query.types;
+        if (types === undefined || types === "all") {
+          types = { $in: ["Jual", "Sewa"] };
+        }
+
+        const searchTerm = req.query.searchTerm || "";
+        const sort = req.query.sort || "CreatedAt";
+        const order = req.query.order || "desc";
+
+        const listings = await ListingModel.find({
+          name: { $regex: searchTerm, $options: "i" },
+          offer,
+          furnished,
+          parking,
+          types,
+        })
+          .sort({ [sort]: order })
+          .limit(limit)
+          .skip(startIndex);
+
+        return res.status(200).json(listings);
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    });
+  }
 }

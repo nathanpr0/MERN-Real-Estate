@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+// IMPORT IMAGE CONVERTER
+import imageCompression from "browser-image-compression";
+
 // IMPORT REACT REDUX
 import { useSelector } from "react-redux";
 
@@ -41,7 +44,19 @@ export default function CreateListing() {
   const [uploading, setUploading] = useState(false);
   const [imageError, setImageUploadError] = useState(false);
 
-  // STORE IMAGE TO FIREBASE STORAGE PROJECT THEN GET THE URL
+  // Fungsi untuk mengonversi gambar ke format WebP
+  const convertToWebP = async (file) => {
+    const options = {
+      maxSizeMB: 1, // Set ukuran maksimum file terkompresi dalam MB
+      maxWidthOrHeight: 1920, // Set lebar atau tinggi maksimum gambar terkompresi
+      useWebWorker: true, // Gunakan multi-threading untuk kompresi yang lebih cepat
+      fileType: "image/webp", // Tentukan jenis file output
+    };
+
+    return await imageCompression(file, options);
+  };
+
+  // Fungsi untuk menyimpan gambar ke Firebase Storage
   const storeImage = (file) => {
     return new Promise((resolve, reject) => {
       const auth = getAuth();
@@ -56,42 +71,45 @@ export default function CreateListing() {
       const storage = getStorage(app);
       const storageRef = ref(storage, `images/${uid}/${new Date().getTime() + file.name}`);
 
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      // Konversi gambar ke format WebP
+      convertToWebP(file)
+        .then((webPFile) => {
+          const uploadTask = uploadBytesResumable(storageRef, webPFile);
 
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        },
-        (error) => {
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            },
+            (error) => {
+              reject(error);
+            },
+            () => {
+              getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
+                resolve(downloadUrl);
+              });
+            }
+          );
+        })
+        .catch((error) => {
           reject(error);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
-            resolve(downloadUrl);
-          });
-        }
-      );
+        });
     });
   };
 
-  // AFTER GET THE URL PUT THE IMAGE FIREBASE URL ON THE FORM OF IMAGE STATE
+  // Fungsi untuk menangani upload gambar
   const handleImagesUpload = (e) => {
     e.preventDefault();
 
-    // CHECK JUMLAH IMAGES
     if (images.length > 0 && images.length + formData["imagesURL"].length < 7) {
       setUploading(true);
       setImageUploadError(false);
       const promises = [];
 
-      // MEMASUKKAN DATA URL IMAGES DARI FIREBASE YANG DI PINDAHKAN
-      // KE ARRAY KOSONG YANG AKAN DI GUNAKAN KE DLM STATE BARU
       for (let i = 0; i < images.length; i++) {
         promises.push(storeImage(images[i]));
       }
 
-      // MENYIMPAN URL IMAGES FIREBASE KE DLM STATE
       Promise.all(promises)
         .then((urls) => {
           setFormData({ ...formData, imagesURL: formData["imagesURL"].concat(urls) });
@@ -250,6 +268,7 @@ export default function CreateListing() {
             maxLength="300"
             placeholder="Deskripsi"
             className="w-full shadow-md border-solid border-sky-600 border-2 rounded px-4 py-3 focus:outline-sky-800"
+            rows={6}
             value={formData.description}
             onChange={handleChangeInput}
           />

@@ -15,4 +15,7 @@ listingRouter.get("/fetchlistings", listingControl.fetch());
 listingRouter.get("/fetchlistingsdetails/:id", listingControl.fetchDetails());
 listingRouter.get("/fetchlistingsrecommend/:id", listingControl.fetchRecommend());
 
+// SEARCH LISTING
+listingRouter.get("/search", listingControl.search());
+
 export default listingRouter;
