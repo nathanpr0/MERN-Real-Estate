@@ -76,7 +76,7 @@ export default function Recommendation({ fetchListing }) {
                   </figure>
 
                   <article className="flex flex-col mb-4 px-5 pt-4 pb-2 h-full">
-                    <section className="overflow-hidden">
+                    <section>
                       <h2 className="text-xl font-bold text-white truncate">{value.name}</h2>
 
                       <p className="text-sm font-semibold bg-white text-gray-700 rounded-md px-2 inline-block mr-2">
@@ -89,19 +89,19 @@ export default function Recommendation({ fetchListing }) {
 
                       {value.furnished && (
                         <p className="inline-flex items-center gap-x-1 text-sm font-semibold bg-fuchsia-300 text-gray-700 rounded-md px-2 mr-2">
-                          Furnished <GiSofa />
+                          Furnished <GiSofa className="w-4 h-4" />
                         </p>
                       )}
 
                       {value.parking && (
                         <p className="inline-flex items-center gap-x-1 text-sm font-semibold bg-indigo-200 text-gray-700 rounded-md px-2 mr-2">
-                          Parking Spot <FaParking />
+                          Parking Spot <FaParking className="w-4 h-4" />
                         </p>
                       )}
 
                       {value.offer && (
                         <p className="inline-flex items-center gap-x-1 text-sm font-semibold bg-yellow-300 text-gray-700 rounded-md px-2">
-                          Offer <GoChecklist />
+                          Offer <GoChecklist className="w-4 h-4" />
                         </p>
                       )}
                     </section>
@@ -128,16 +128,17 @@ export default function Recommendation({ fetchListing }) {
 
                   <article className="px-5 py-3 border-solid border-white border-t-2">
                     <div className="flex flex-row items-center gap-x-1 mb-3">
-                      <FaMapMarkerAlt size={25} />
+                      <FaMapMarkerAlt className="w-6 h-6" />
                       <p className="text-sm text-white truncate">{value.address}</p>
                     </div>
 
                     <div className="flex flex-row justify-between gap-x-3">
                       <section className="flex gap-2">
                         <p className="text-sm font-bold text-white">{value.bedrooms}</p>
-                        <FaBed className="text-xl text-white" />
+                        <FaBed className="w-5 h-5 text-xl text-white" />
+
                         <p className="text-sm font-bold text-white">{value.bathrooms}</p>
-                        <FaBath className="text-xl text-white" />
+                        <FaBath className="w-5 h-5 text-xl text-white" />
                       </section>
 
                       <p className="text-sm text-white truncate">

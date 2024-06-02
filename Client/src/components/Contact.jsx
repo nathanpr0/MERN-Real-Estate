@@ -42,7 +42,7 @@ export default function Contact({ landLord_listing, stateLandLord, actionLandLor
       {stateLandLord && (
         <>
           <label className="flex flex-col">
-            <span className="text-sm font-medium text-gray-700 mb-2">LandLord Name</span>
+            <span className="text-sm font-medium text-gray-700 mb-2">{"Landlord's"} Name</span>
             <input
               type="text"
               className="shadow-md border-solid border-sky-600 border-2 rounded px-2 py-1 focus:outline-none"

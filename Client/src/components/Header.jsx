@@ -49,48 +49,45 @@ export default function Header() {
             </form>
 
             <ul className="flex items-center justify-center gap-10 text-lg max-lg:hidden">
-              <Link to="/">
-                <li
-                  className="cursor-pointer border-b-2 border-transparent 
+              <li
+                className="cursor-pointer border-b-2 border-transparent 
                 hover:border-white transition-all duration-200 ease-in-out"
-                >
-                  Home
-                </li>
-              </Link>
-              <Link to="/about">
-                <li
-                  className="cursor-pointer border-b-2 border-transparent 
+              >
+                <Link to="/"> Home</Link>
+              </li>
+
+              <li
+                className="cursor-pointer border-b-2 border-transparent 
                 hover:border-white transition-all duration-200 ease-in-out"
-                >
-                  About
-                </li>
-              </Link>
+              >
+                <Link to="/about"> About</Link>
+              </li>
 
               {currentUser ? (
-                <Link to={"/profile"}>
-                  <img
-                    src={currentUser["avatar"]}
-                    alt="Profile.img"
-                    className="rounded-full mx-auto h-[2.5rem] max-lg:h-[30px] object-cover"
-                  />
-                </Link>
+                <li>
+                  <Link to={"/profile"}>
+                    <img
+                      src={currentUser["avatar"]}
+                      alt="Profile.img"
+                      className="rounded-full mx-auto h-[2.5rem] max-lg:h-[30px] object-cover"
+                    />
+                  </Link>
+                </li>
               ) : (
-                <Link to="/sign-in">
-                  <li className="cursor-pointer border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
-                    Sign In
-                  </li>
-                </Link>
+                <li className="cursor-pointer border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
+                  <Link to="/sign-in">Sign In</Link>
+                </li>
               )}
             </ul>
 
             <FaBars
               onClick={() => setTablet((click) => !click)}
-              className="lg:hidden max-lg:inline-block max-sm:hidden cursor-pointer text-2xl"
+              className="lg:hidden max-lg:inline-block max-sm:hidden cursor-pointer w-6 h-6"
             />
 
             <FaBars
               onClick={() => setMobile((click) => !click)}
-              className="sm:hidden max-sm:inline-block cursor-pointer text-xl"
+              className="sm:hidden max-sm:inline-block cursor-pointer w-4 h-4"
             />
           </div>
 
@@ -102,32 +99,28 @@ export default function Header() {
             transition-all duration-300 ease-in-out -z-10 w-full`}
           >
             <ul className="flex items-center justify-center gap-10 text-white font-bold text-lg">
-              <Link to="/">
-                <li className="cursor-pointer border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
-                  Home
-                </li>
-              </Link>
+              <li className="cursor-pointer border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
+                <Link to="/"> Home </Link>
+              </li>
 
-              <Link to="/about">
-                <li className="cursor-pointer border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
-                  About
-                </li>
-              </Link>
+              <li className="cursor-pointer border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
+                <Link to="/about"> About</Link>
+              </li>
 
               {currentUser ? (
-                <Link to={"/profile"}>
-                  <img
-                    src={currentUser["avatar"]}
-                    alt="Profile.img"
-                    className="rounded-full mx-auto h-[2.5rem] max-lg:h-[30px] object-cover"
-                  />
-                </Link>
+                <li>
+                  <Link to={"/profile"}>
+                    <img
+                      src={currentUser["avatar"]}
+                      alt="Profile.img"
+                      className="rounded-full mx-auto h-[2.5rem] max-lg:h-[30px] object-cover"
+                    />
+                  </Link>
+                </li>
               ) : (
-                <Link to="/sign-in">
-                  <li className="cursor-pointer border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
-                    Sign In
-                  </li>
-                </Link>
+                <li className="cursor-pointer border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
+                  <Link to="/sign-in">Sign In</Link>
+                </li>
               )}
             </ul>
           </nav>
@@ -155,30 +148,28 @@ export default function Header() {
               </form>
 
               <ul className="flex items-center justify-center gap-10 text-white font-bold">
-                <Link to="/">
-                  <li className="cursor-pointer text-sm border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
-                    Home
-                  </li>
-                </Link>
-                <Link to="/about">
-                  <li className="cursor-pointer text-sm border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
-                    About
-                  </li>
-                </Link>
+                <li className="cursor-pointer text-sm border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
+                  <Link to="/">Home</Link>
+                </li>
+
+                <li className="cursor-pointer text-sm border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
+                  <Link to="/about">About </Link>
+                </li>
+
                 {currentUser ? (
-                  <Link to={"/profile"}>
-                    <img
-                      src={currentUser["avatar"]}
-                      alt="Profile.img"
-                      className="rounded-full mx-auto h-[2.5rem] max-lg:h-[30px] object-cover"
-                    />
-                  </Link>
+                  <li>
+                    <Link to={"/profile"}>
+                      <img
+                        src={currentUser["avatar"]}
+                        alt="Profile.img"
+                        className="rounded-full mx-auto h-[2.5rem] max-lg:h-[30px] object-cover"
+                      />
+                    </Link>
+                  </li>
                 ) : (
-                  <Link to="/sign-in">
-                    <li className="cursor-pointer text-sm border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
-                      Sign In
-                    </li>
-                  </Link>
+                  <li className="cursor-pointer text-sm border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
+                    <Link to="/sign-in">Sign In</Link>
+                  </li>
                 )}
               </ul>
             </div>

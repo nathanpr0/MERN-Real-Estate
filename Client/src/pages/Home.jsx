@@ -6,13 +6,13 @@ export default function Home() {
 
   return (
     <>
-      <div className="banner h-screen selection:bg-white selection:bg-opacity-80 selection:text-gray-700 overflow-hidden">
+      <div className="banner h-screen selection:bg-white selection:bg-opacity-80 selection:text-gray-700">
         {/* LEFT CONTAINER */}
-        <section className="w-2/4 max-md:w-full h-full flex flex-col justify-center float-left px-10">
+        <section className="w-2/4 max-md:w-full h-full flex flex-col justify-center float-left px-10 py-4">
           <h1 className="text-6xl max-lg:text-5xl max-md:text-6xl max-sm:text-5xl font-bold mb-4 text-white">
             Temukan Rumah Impian Anda
           </h1>
-          <p className="text-lg max-lg:text-lg max-sm:text-md text-white mt-4">
+          <p className="text-md md:text-lg text-white mt-4">
             Kami membantu Anda menemukan rumah yang sempurna sesuai dengan kebutuhan dan anggaran
             Anda. Jelajahi koleksi properti kami yang beragam dan temukan tempat yang bisa Anda
             sebut rumah.
@@ -20,13 +20,14 @@ export default function Home() {
         </section>
 
         {/* RIGHT CONTAINER */}
-        <section className="w-2/4 h-full flex max-md:hidden flex-row justify-center items-center gap-x-6 max-lg:gap-x-3">
+        <section className="overflow-hidden w-2/4 h-full flex max-md:hidden flex-row justify-center items-center gap-x-6 max-lg:gap-x-3">
           <figure className="flex flex-col gap-y-4">
             <img
               src="banner_potrait_1.webp"
               alt="banner_potrait_1"
               className="object-cover rounded-lg"
               width="300"
+              height="400"
             />
 
             <img
@@ -34,6 +35,7 @@ export default function Home() {
               alt="banner_potrait_2"
               className="object-cover rounded-lg"
               width="300"
+              height="400"
             />
           </figure>
 
@@ -43,6 +45,7 @@ export default function Home() {
               alt="banner_potrait_3"
               className="object-cover rounded-lg"
               width="300"
+              height="400"
             />
 
             <img
@@ -50,6 +53,7 @@ export default function Home() {
               alt="banner_potrait_4"
               className="object-cover rounded-lg filter brightness-125"
               width="300"
+              height="400"
             />
           </figure>
         </section>

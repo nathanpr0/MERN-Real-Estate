@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
+import emailjs from "@emailjs/browser";
 
 // IMPORT COMPONENTS
 import Recommendation from "../components/Recommendation.jsx";
@@ -35,6 +36,7 @@ export default function Listing() {
 
   // USER PERSIST ACCOUNT
   const { currentUser } = useSelector((state) => state.user);
+
   // LISTING ID FROM ROUTER
   const params = useParams();
   const listingid = params.listingid;
@@ -46,6 +48,52 @@ export default function Listing() {
 
   const [loading, setLoading] = useState(false);
   const [pageError, setError] = useState(false);
+
+  // EMAIL FUNCTIONALITY TO CONTACK LANDLORD
+  const [loadingMessage, setLoadingMessage] = useState(false);
+  const sendEmail = async (e) => {
+    e.preventDefault();
+
+    try {
+      setLoadingMessage(true);
+
+      // EMAILJS CONFIG
+      const EMAIL_SERVICE = import.meta.env.VITE_EMAIL_SERVICE_ID;
+      const EMAIL_TEMPLATE = import.meta.env.VITE_EMAIL_TEMPLATE_ID;
+      const EMAIL_PUBLIC_KEY = import.meta.env.VITE_EMAIL_PUBLIC_KEY;
+
+      if (!EMAIL_SERVICE || !EMAIL_TEMPLATE || !EMAIL_PUBLIC_KEY) {
+        throw new Error("EmailJS configuration is missing");
+      }
+
+      await emailjs.send(
+        EMAIL_SERVICE,
+        EMAIL_TEMPLATE,
+        {
+          listing_name: userListing.name,
+          to_name: landLord.username,
+          from_name: currentUser.username,
+          message,
+          to_email: landLord.email,
+          from_email: currentUser.email,
+        },
+        {
+          publicKey: EMAIL_PUBLIC_KEY,
+        }
+      );
+
+      setLoadingMessage(false);
+      toast.success("Email Message is Successfully", { position: "bottom-left" });
+
+      return;
+    } catch (error) {
+      setLoadingMessage(false);
+      toast.error("Error during Sending email", { position: "bottom-left" });
+      console.error("Error sending email:", error);
+
+      return;
+    }
+  };
 
   useEffect(() => {
     async function fetchUserListing() {
@@ -86,7 +134,7 @@ export default function Listing() {
       ) : (
         userListing && (
           <main className="flex flex-col gap-14 max-sm:m-0 px-14 max-lg:px-5 max-sm:px-3 py-10">
-            <section className="flex max-lg:flex-col justify-between bg-white rounded-lg shadow-lg shadow-gray-400 overflow-hidden">
+            <section className="flex max-lg:flex-col justify-between bg-white rounded-lg shadow-lg shadow-gray-400">
               {/* IMAGES SLIDER */}
               <figure className="w-1/2 bg-black max-lg:w-full">
                 <Swiper
@@ -110,13 +158,13 @@ export default function Listing() {
                     </SwiperSlide>
                   ))}
 
-                  <div className="prev-slide absolute z-10 p-1 bg-sky-600 text-white group-hover:left-0 -left-full transition-all duration-300 top-2/4 cursor-pointer">
-                    <IoMdArrowRoundBack size={25} />
+                  <div className="prev-slide absolute z-10 p-1 bg-sky-600 text-white lg:group-hover:left-0 lg:-left-full left-0 transition-all duration-300 top-2/4 cursor-pointer">
+                    <IoMdArrowRoundBack className="w-6 h-6" />
                   </div>
-                  <div className="next-slide absolute z-10 p-1 bg-sky-600 text-white group-hover:right-0 -right-full transition-all duration-300 top-2/4 cursor-pointer">
-                    <IoMdArrowRoundForward size={25} />
+                  <div className="next-slide absolute z-10 p-1 bg-sky-600 text-white lg:group-hover:right-0 lg:-right-full right-0 transition-all duration-300 top-2/4 cursor-pointer">
+                    <IoMdArrowRoundForward className="w-6 h-6" />
                   </div>
-                  <div className="pagination text-sky-700 absolute z-10 group-hover:bottom-1 -bottom-full transition-all duration-300 text-center"></div>
+                  <div className="pagination text-sky-700 absolute z-10 lg:group-hover:bottom-1 lg:-bottom-full bottom-1 transition-all duration-300 text-center"></div>
                 </Swiper>
               </figure>
 
@@ -134,17 +182,17 @@ export default function Listing() {
                     </span>
                     {userListing.furnished && (
                       <span className="flex flex-row items-center ml-1 gap-x-1 bg-yellow-100 text-yellow-800 rounded-md px-2 py-1">
-                        Furnished <GiSofa />
+                        Furnished <GiSofa className="w-4 h-4" />
                       </span>
                     )}
                     {userListing.parking && (
                       <span className="flex flex-row items-center ml-1 gap-x-1 bg-purple-100 text-purple-800 rounded-md px-2 py-1">
-                        Parking Spot <FaParking />
+                        Parking Spot <FaParking className="w-4 h-4" />
                       </span>
                     )}
                     {userListing.offer && (
                       <span className="flex flex-row items-center ml-1 gap-x-1 bg-red-100 text-red-800 rounded-md px-2 py-1">
-                        Offer <GoChecklist />
+                        Offer <GoChecklist className="w-4 h-4" />
                       </span>
                     )}
                   </p>
@@ -154,7 +202,7 @@ export default function Listing() {
 
                 <div className="flex flex-col gap-x-3">
                   <section className="flex flex-row items-center gap-x-2 mb-3">
-                    <FaMapMarkerAlt className="text-gray-600" />
+                    <FaMapMarkerAlt className="text-gray-600 w-5 h-5" />
                     <p className="text-gray-600">{userListing.address}</p>
                   </section>
 
@@ -162,12 +210,12 @@ export default function Listing() {
                     <div className="flex flex-row gap-x-3">
                       <div className="flex flex-row gap-x-2">
                         <p className="text-sm">{userListing.bedrooms}</p>
-                        <FaBed className="text-xl text-gray-600" />
+                        <FaBed className="text-gray-600 w-5 h-5" />
                       </div>
 
                       <div className="flex flex-row gap-x-3">
                         <p className="text-sm">{userListing.bathrooms}</p>
-                        <FaBath className="text-xl text-gray-600" />
+                        <FaBath className="text-gray-600 w-5 h-5" />
                       </div>
                     </div>
 
@@ -206,7 +254,7 @@ export default function Listing() {
                   <section className="fixed bottom-20 right-20 bg-white rounded-lg shadow-lg shadow-gray-400 p-6 z-50 w-80">
                     <h3 className="text-xl font-semibold text-center mb-4">Contact Landlord</h3>
 
-                    <form method="post" className="flex flex-col gap-4">
+                    <form method="post" className="flex flex-col gap-4" onSubmit={sendEmail}>
                       <Contact
                         landLord_listing={userListing}
                         stateLandLord={landLord}
@@ -219,19 +267,19 @@ export default function Listing() {
                           id="message"
                           name="message"
                           value={message}
-                          onChange={(e) => setMessage( e.target.value)}
+                          onChange={(e) => setMessage(e.target.value)}
                           className="shadow-md border-solid border-sky-600 border-2 rounded p-2 focus:outline-sky-800 h-32 resize-none"
                           placeholder="Enter your message here..."
                           required
                         ></textarea>
                       </label>
 
-                      <Link
-                        to={`mailto:${landLord.email}?subject:${userListing.name}&body=${message}`}
+                      <button
+                        type="submit"
                         className="bg-sky-600 text-white text-center rounded-md p-2 font-semibold hover:bg-sky-700 transition-all"
                       >
-                        Send Message
-                      </Link>
+                        {loadingMessage ? "Loading..." : "Send Message"}
+                      </button>
                     </form>
                   </section>
                 )}

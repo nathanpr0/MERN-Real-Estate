@@ -45,8 +45,8 @@ export default function UserProfile({ usernameData, emailData, usernameOnChange 
           <input
             type="text"
             className="mt-1 text-lg py-3 w-full font-semibold text-gray-900 
-            read-only:focus:outline-none read-only:focus:shadow-none read-only:focus:px-0 
-            focus:outline-sky-800 focus:shadow-md focus:px-3"
+                 read-only:focus:outline-none read-only:focus:shadow-none read-only:focus:px-0 
+                 focus:outline-sky-800 focus:shadow-md focus:px-3"
             id="username"
             name="username"
             autoComplete="off"
@@ -62,9 +62,9 @@ export default function UserProfile({ usernameData, emailData, usernameOnChange 
             }}
           />
           {focusInput["username"] ? (
-            <FaPencilAlt onClick={handleFocusUsername} className="cursor-pointer" />
+            <FaPencilAlt onClick={handleFocusUsername} className="cursor-pointer w-5 h-5" />
           ) : (
-            <MdClose onClick={handleBlurUsername} className="cursor-pointer" />
+            <MdClose onClick={handleBlurUsername} className="cursor-pointer w-5 h-5" />
           )}
         </div>
       </div>
