@@ -166,6 +166,12 @@ export default function UserListing({ userListing, setListing }) {
                         {value.lot}
                       </p>
 
+                      {value.offer && (
+                        <p className="inline-flex items-center gap-x-1 text-sm font-semibold bg-yellow-300 text-gray-700 rounded-md px-2 mr-2">
+                          Offer <GoChecklist className="w-4 h-4" />
+                        </p>
+                      )}
+
                       {value.furnished && (
                         <p className="inline-flex items-center gap-x-1 text-sm font-semibold bg-fuchsia-300 text-gray-700 rounded-md px-2 mr-2">
                           Furnished <GiSofa className="w-4 h-4" />
@@ -175,12 +181,6 @@ export default function UserListing({ userListing, setListing }) {
                       {value.parking && (
                         <p className="inline-flex items-center gap-x-1 text-sm font-semibold bg-indigo-200 text-gray-700 rounded-md px-2 mr-2">
                           Parking Spot <FaParking className="w-4 h-4" />
-                        </p>
-                      )}
-
-                      {value.offer && (
-                        <p className="inline-flex items-center gap-x-1 text-sm font-semibold bg-yellow-300 text-gray-700 rounded-md px-2">
-                          Offer <GoChecklist className="w-4 h-4" />
                         </p>
                       )}
                     </section>

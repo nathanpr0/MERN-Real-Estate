@@ -105,7 +105,7 @@ export default class listingController {
   fetch() {
     return asyncHandler(async (req, res) => {
       try {
-        const response = await ListingModel.find();
+        const response = await ListingModel.find().sort({ createdAt: "desc" }).limit(9);
 
         if (!response) {
           return res.status(404).json({
@@ -139,7 +139,9 @@ export default class listingController {
     return asyncHandler(async (req, res) => {
       try {
         const { id } = req.params;
-        const response = await ListingModel.find({ _id: { $ne: id } });
+        const response = await ListingModel.find({ _id: { $ne: id } })
+          .sort({ createdAt: "desc" })
+          .limit(9);
 
         if (!response) {
           return res.status(404).json({
@@ -147,8 +149,6 @@ export default class listingController {
           });
         }
 
-        // Handle the case when listings are found
-        // For example:
         return res.status(200).json(response);
       } catch (error) {
         throw new Error(error.message);

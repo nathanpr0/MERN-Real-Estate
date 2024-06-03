@@ -28,7 +28,7 @@ export default function CreateListing() {
     name: "",
     description: "",
     address: "",
-    types: "Sewa",
+    types: "Jual",
     bedrooms: 1,
     bathrooms: 1,
     regularPrice: 3000000,
@@ -36,7 +36,7 @@ export default function CreateListing() {
     offer: false,
     parking: false,
     furnished: false,
-    lot: "Rumah",
+    lot: "Apartemen",
   });
 
   // IMAGES UPLOAD
@@ -293,110 +293,120 @@ export default function CreateListing() {
         </section>
 
         {/* INPUT DETAIL */}
-        <section className="flex flex-wrap gap-5 mt-8">
-          {/* Checkbox 1 */}
-          <div className="flex gap-3 items-center">
-            <input
-              type="checkbox"
-              name="Jual"
-              id="Jual"
-              className="h-6 w-6 shadow-md cursor-pointer"
-              checked={formData.types === "Jual"}
-              onChange={handleChangeInput}
-            />
-            <label htmlFor="Jual" className="text-sm font-medium text-gray-700 ">
-              Jual
-            </label>
+        <section className="mt-8">
+          <p className="text-gray-700 font-medium text-md">Type</p>
+
+          <div className="flex gap-5 p-3 mb-2">
+            {/* Checkbox 1 */}
+            <div className="flex gap-3 items-center">
+              <input
+                type="checkbox"
+                name="Jual"
+                id="Jual"
+                className="h-6 w-6 shadow-md cursor-pointer"
+                checked={formData.types === "Jual"}
+                onChange={handleChangeInput}
+              />
+              <label htmlFor="Jual" className="text-sm font-medium text-gray-700 ">
+                Jual
+              </label>
+            </div>
+
+            {/* Checkbox 2 */}
+            <div className="flex gap-3 items-center">
+              <input
+                type="checkbox"
+                name="Sewa"
+                id="Sewa"
+                className="h-6 w-6 shadow-md cursor-pointer"
+                checked={formData.types === "Sewa"}
+                onChange={handleChangeInput}
+              />
+              <label htmlFor="Sewa" className="text-sm font-medium text-gray-700 ">
+                Sewa
+              </label>
+            </div>
+
+            {/* Checkbox 3 */}
+            <div className="flex gap-3 items-center">
+              <input
+                type="checkbox"
+                name="offer"
+                id="offer"
+                className="h-6 w-6 shadow-md cursor-pointer"
+                checked={formData.offer}
+                onChange={handleChangeInput}
+              />
+              <label htmlFor="offer" className="text-sm font-medium text-gray-700 ">
+                Offer
+              </label>
+            </div>
           </div>
 
-          {/* Checkbox 2 */}
-          <div className="flex gap-3 items-center">
-            <input
-              type="checkbox"
-              name="Sewa"
-              id="Sewa"
-              className="h-6 w-6 shadow-md cursor-pointer"
-              checked={formData.types === "Sewa"}
-              onChange={handleChangeInput}
-            />
-            <label htmlFor="Sewa" className="text-sm font-medium text-gray-700 ">
-              Sewa
-            </label>
+          <p className="text-gray-700 font-medium text-md">Lot</p>
+          <div className="flex gap-5 p-3 mb-2">
+            {/* Checkbox 4 */}
+            <div className="flex gap-3 items-center">
+              <input
+                type="checkbox"
+                name="Rumah"
+                id="Rumah"
+                className="h-6 w-6 shadow-md cursor-pointer"
+                checked={formData.lot === "Rumah"}
+                onChange={handleChangeInput}
+              />
+              <label htmlFor="Rumah" className="text-sm font-medium text-gray-700 ">
+                Rumah
+              </label>
+            </div>
+
+            {/* Checkbox 5 */}
+            <div className="flex gap-3 items-center">
+              <input
+                type="checkbox"
+                name="Apartemen"
+                id="Apartemen"
+                className="h-6 w-6 shadow-md cursor-pointer"
+                checked={formData.lot === "Apartemen"}
+                onChange={handleChangeInput}
+              />
+              <label htmlFor="Apartemen" className="text-sm font-medium text-gray-700 ">
+                Apartemen
+              </label>
+            </div>
           </div>
 
-          {/* Checkbox 3 */}
-          <div className="flex gap-3 items-center">
-            <input
-              type="checkbox"
-              name="parking"
-              id="parking"
-              className="h-6 w-6 shadow-md cursor-pointer"
-              checked={formData.parking}
-              onChange={handleChangeInput}
-            />
-            <label htmlFor="parking" className="text-sm font-medium text-gray-700 ">
-              Parking Spot
-            </label>
-          </div>
+          <p className="text-gray-700 font-medium text-md">Facility</p>
+          <div className="flex gap-5 p-3">
+            {/* Checkbox 6 */}
+            <div className="flex gap-3 items-center">
+              <input
+                type="checkbox"
+                name="parking"
+                id="parking"
+                className="h-6 w-6 shadow-md cursor-pointer"
+                checked={formData.parking}
+                onChange={handleChangeInput}
+              />
+              <label htmlFor="parking" className="text-sm font-medium text-gray-700 ">
+                Parking Spot
+              </label>
+            </div>
 
-          {/* Checkbox 4 */}
-          <div className="flex gap-3 items-center">
-            <input
-              type="checkbox"
-              name="furnished"
-              id="furnished"
-              className="h-6 w-6 shadow-md cursor-pointer"
-              checked={formData.furnished}
-              onChange={handleChangeInput}
-            />
-            <label htmlFor="furnished" className="text-sm font-medium text-gray-700 ">
-              Furnished
-            </label>
-          </div>
-
-          {/* Checkbox 5 */}
-          <div className="flex gap-3 items-center">
-            <input
-              type="checkbox"
-              name="offer"
-              id="offer"
-              className="h-6 w-6 shadow-md cursor-pointer"
-              checked={formData.offer}
-              onChange={handleChangeInput}
-            />
-            <label htmlFor="offer" className="text-sm font-medium text-gray-700 ">
-              Offer
-            </label>
-          </div>
-
-          {/* Checkbox 6 */}
-          <div className="flex gap-3 items-center">
-            <input
-              type="checkbox"
-              name="Rumah"
-              id="Rumah"
-              className="h-6 w-6 shadow-md cursor-pointer"
-              checked={formData.lot === "Rumah"}
-              onChange={handleChangeInput}
-            />
-            <label htmlFor="Rumah" className="text-sm font-medium text-gray-700 ">
-              Rumah
-            </label>
-          </div>
-
-          {/* Checkbox 7 */}
-          <div className="flex gap-3 items-center">
-            <input
-              type="checkbox"
-              name="Apartemen"
-              id="Apartemen"
-              className="h-6 w-6 shadow-md cursor-pointer"
-              checked={formData.lot === "Apartemen"}
-              onChange={handleChangeInput}
-            />
-            <label htmlFor="Apartemen" className="text-sm font-medium text-gray-700 ">
-              Apartemen
-            </label>
+            {/* Checkbox 7 */}
+            <div className="flex gap-3 items-center">
+              <input
+                type="checkbox"
+                name="furnished"
+                id="furnished"
+                className="h-6 w-6 shadow-md cursor-pointer"
+                checked={formData.furnished}
+                onChange={handleChangeInput}
+              />
+              <label htmlFor="furnished" className="text-sm font-medium text-gray-700 ">
+                Furnished
+              </label>
+            </div>
           </div>
         </section>
 

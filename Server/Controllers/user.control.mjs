@@ -77,7 +77,9 @@ export default class UserController {
         });
       } else {
         try {
-          const response = await ListingModel.find({ created_by_user: id });
+          const response = await ListingModel.find({ created_by_user: id }).sort({
+            createdAt: "desc",
+          });
           res.status(200).json(response);
           return;
         } catch (error) {

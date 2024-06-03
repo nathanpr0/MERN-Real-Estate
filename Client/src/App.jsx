@@ -8,6 +8,7 @@ import Home from "./pages/Home.jsx";
 import Profile from "./pages/Profile.jsx";
 import SignIn from "./pages/Signin.jsx";
 import SignUp from "./pages/Signup.jsx";
+import Search from "./pages/Search.jsx";
 
 // IMPORT COMPONENTS
 import Header from "./components/Header.jsx";
@@ -22,6 +23,7 @@ export default function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/search" element={<Search />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/about" element={<About />} />

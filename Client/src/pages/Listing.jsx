@@ -22,7 +22,6 @@ import { Pagination, Navigation } from "swiper/modules";
 
 // SWIPER STYLING
 import "swiper/css/bundle";
-import "swiper/css/pagination";
 import "swiper/css/navigation";
 
 export default function Listing() {
@@ -164,7 +163,7 @@ export default function Listing() {
                   <div className="next-slide absolute z-10 p-1 bg-sky-600 text-white lg:group-hover:right-0 lg:-right-full right-0 transition-all duration-300 top-2/4 cursor-pointer">
                     <IoMdArrowRoundForward className="w-6 h-6" />
                   </div>
-                  <div className="pagination text-sky-700 absolute z-10 lg:group-hover:bottom-1 lg:-bottom-full bottom-1 transition-all duration-300 text-center"></div>
+                  <div className="pagination absolute z-10 lg:group-hover:bottom-1 lg:-bottom-full bottom-1 transition-all duration-300 text-center"></div>
                 </Swiper>
               </figure>
 
@@ -177,22 +176,26 @@ export default function Listing() {
                     <span className="bg-blue-100 text-blue-800 rounded-md px-2 py-1 mr-1">
                       {userListing.types}
                     </span>
+
                     <span className="bg-green-100 text-green-800 rounded-md px-2 py-1 mr-1">
                       {userListing.lot}
                     </span>
+
+                    {userListing.offer && (
+                      <span className="flex flex-row items-center ml-1 gap-x-1 bg-red-100 text-red-800 rounded-md px-2 py-1">
+                        Offer <GoChecklist className="w-4 h-4" />
+                      </span>
+                    )}
+
                     {userListing.furnished && (
                       <span className="flex flex-row items-center ml-1 gap-x-1 bg-yellow-100 text-yellow-800 rounded-md px-2 py-1">
                         Furnished <GiSofa className="w-4 h-4" />
                       </span>
                     )}
+
                     {userListing.parking && (
                       <span className="flex flex-row items-center ml-1 gap-x-1 bg-purple-100 text-purple-800 rounded-md px-2 py-1">
                         Parking Spot <FaParking className="w-4 h-4" />
-                      </span>
-                    )}
-                    {userListing.offer && (
-                      <span className="flex flex-row items-center ml-1 gap-x-1 bg-red-100 text-red-800 rounded-md px-2 py-1">
-                        Offer <GoChecklist className="w-4 h-4" />
                       </span>
                     )}
                   </p>
