@@ -296,7 +296,7 @@ export default function CreateListing() {
         <section className="mt-8">
           <p className="text-gray-700 font-medium text-md">Type</p>
 
-          <div className="flex gap-5 p-3 mb-2">
+          <div className="grid grid-cols-2 gap-3 mb-3 p-3">
             {/* Checkbox 1 */}
             <div className="flex gap-3 items-center">
               <input
@@ -344,7 +344,7 @@ export default function CreateListing() {
           </div>
 
           <p className="text-gray-700 font-medium text-md">Lot</p>
-          <div className="flex gap-5 p-3 mb-2">
+          <div className="grid grid-cols-2 gap-3 mb-3 p-3">
             {/* Checkbox 4 */}
             <div className="flex gap-3 items-center">
               <input
@@ -377,7 +377,7 @@ export default function CreateListing() {
           </div>
 
           <p className="text-gray-700 font-medium text-md">Facility</p>
-          <div className="flex gap-5 p-3">
+          <div className="grid grid-cols-2 gap-3 p-3">
             {/* Checkbox 6 */}
             <div className="flex gap-3 items-center">
               <input

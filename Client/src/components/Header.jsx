@@ -20,12 +20,14 @@ export default function Header() {
     e.preventDefault();
 
     // MENGAMBIL PARAM & INISIAL NAMA PROPERTY SEARCH DARI BACKEND
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(location.search);
     urlParams.set("searchTerm", searchTerm);
 
     // MELAKUKAN QUERY SEARCH
     const searchQuery = urlParams.toString();
     navigate(`/search?${searchQuery}`);
+
+    return;
   }
 
   // RENDERING PERUBAH SETELAH MELAKUKAN QUERY SEARCH
@@ -38,7 +40,8 @@ export default function Header() {
     if (searchTermResult) {
       setSearchTerm(searchTermResult);
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
 
   return (
     <>
@@ -47,13 +50,15 @@ export default function Header() {
           <div
             className={`${
               tablet || mobile ? "shadow-none" : "shadow-xl"
-            } flex items-center justify-around gap-4 selection:bg-white 
-            selection:bg-opacity-80 selection:text-gray-700 bg-sky-700 text-white 
+            } flex items-center justify-around gap-4 bg-sky-700 text-white 
             px-6 py-[0.6rem] font-bold transition-all duration-300 ease-in-out w-full`}
           >
             <div>
               <Link to="/">
-                <h1 className="text-[2.1rem] max-lg:text-3xl max-sm:text-2xl cursor-pointer ">
+                <h1
+                  className="text-[2.1rem] max-lg:text-3xl max-sm:text-2xl cursor-pointer selection:bg-white 
+            selection:bg-opacity-80 selection:text-gray-700"
+                >
                   <span className="text-blue-200">House</span>Dreamer
                 </h1>
               </Link>
@@ -74,11 +79,19 @@ export default function Header() {
                 placeholder={focus ? "" : "Search..."}
                 onFocus={() => setFocus(true)}
                 onBlur={() => setFocus(false)}
-              ></input>
-              <FaSearch className="text-gray-500 cursor-pointer" onClick={handleSearch} />
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+
+              <button type="submit">
+                <FaSearch className="text-gray-500 cursor-pointer" />
+              </button>
             </form>
 
-            <ul className="flex items-center justify-center gap-10 text-lg max-lg:hidden">
+            <ul
+              className="flex items-center justify-center gap-10 text-lg max-lg:hidden selection:bg-white 
+            selection:bg-opacity-80 selection:text-gray-700"
+            >
               <li
                 className="cursor-pointer border-b-2 border-transparent 
                 hover:border-white transition-all duration-200 ease-in-out"
@@ -126,7 +139,8 @@ export default function Header() {
             className={`absolute ${
               tablet ? "top-full shadow-xl" : "-top-full shadow-none"
             } lg:hidden max-sm:hidden p-5 bg-sky-700
-            transition-all duration-300 ease-in-out -z-10 w-full`}
+            transition-all duration-300 ease-in-out -z-10 w-full selection:bg-white 
+            selection:bg-opacity-80 selection:text-gray-700`}
           >
             <ul className="flex items-center justify-center gap-10 text-white font-bold text-lg">
               <li className="cursor-pointer border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
@@ -176,11 +190,19 @@ export default function Header() {
                   placeholder={focus ? "" : "Search..."}
                   onFocus={() => setFocus(true)}
                   onBlur={() => setFocus(false)}
-                ></input>
-                <FaSearch className="text-gray-500 cursor-pointer" onClick={handleSearch} />
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <button type="submit">
+                  {" "}
+                  <FaSearch className="text-gray-500 cursor-pointer" onClick={handleSearch} />
+                </button>
               </form>
 
-              <ul className="flex items-center justify-center gap-10 text-white font-bold">
+              <ul
+                className="flex items-center justify-center gap-10 text-white font-bold selection:bg-white 
+            selection:bg-opacity-80 selection:text-gray-700"
+              >
                 <li className="cursor-pointer text-sm border-b-2 border-transparent hover:border-white transition-all duration-200 ease-in-out">
                   <Link to="/">Home</Link>
                 </li>

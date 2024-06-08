@@ -55,7 +55,7 @@ export default function UserListing({ userListing, setListing }) {
    * @param {String[]} imageurl
    */
   async function handleDeleteListing(listingId, imageurl) {
-    const deleteWarning = Swal.fire({
+    const deleteWarning = await Swal.fire({
       title: `Apakah Anda yakin ingin menghapus listing ini?`,
       text: "Tindakan ini tidak dapat dibatalkan. Apakah Anda yakin ingin menghapus listing ini?",
       icon: "warning",
@@ -115,7 +115,7 @@ export default function UserListing({ userListing, setListing }) {
   }
 
   return (
-    <main className="w-full p-14 max-lg:px-5 max-sm:px-3">
+    <main className="w-full py-6 px-10 max-lg:px-5 max-sm:px-3">
       <div className="bg-white p-10 max-sm:px-5 rounded-lg shadow-lg shadow-gray-400">
         <h1 className="text-4xl text-gray-700 text-center font-semibold mb-10">Listing Anda</h1>
 
@@ -131,7 +131,7 @@ export default function UserListing({ userListing, setListing }) {
           </p>
         ) : (
           userListing.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 selection:bg-white selection:bg-opacity-80 selection:text-gray-700">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 selection:bg-white selection:bg-opacity-80 selection:text-gray-700">
               {userListing.map((value) => (
                 <section
                   key={value._id}

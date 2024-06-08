@@ -170,6 +170,19 @@ export default function Listing() {
               {/* DESCRIPTION */}
               <article className="flex flex-col justify-between w-1/2 max-lg:w-full p-6 overflow-y-auto">
                 <div className="flex flex-col gap-2 justify-start mb-2">
+                  <div className="inline-flex flex-row items-center gap-2">
+                    <img
+                      src={userListing.created_by_user.avatar}
+                      alt="user_avatar"
+                      height={10}
+                      width={30}
+                      className="rounded-full object-cover text-center"
+                    />
+                    <p className="text-gray-700 font-semibold">
+                      {userListing.created_by_user.username}
+                    </p>
+                  </div>
+
                   <h2 className="text-2xl font-semibold">{userListing.name}</h2>
 
                   <p className="text-sm font-semibold flex flex-wrap items-center gap-y-2">

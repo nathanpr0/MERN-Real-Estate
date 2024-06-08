@@ -1,4 +1,5 @@
 import ListingModel from "../Models/listing.models.mjs";
+import UserModel from "../Models/user.models.mjs";
 import asyncHandler from "express-async-handler";
 
 export default class listingController {
@@ -86,7 +87,7 @@ export default class listingController {
           });
         }
 
-        if (response["created_by_user" !== req.user.id]) {
+        if (response["created_by_user"] !== req.user.id) {
           return res.status(401).json({
             error:
               "Unauthorized: You're not allowed to fetch this listing. Your ID does not match.",
@@ -105,16 +106,22 @@ export default class listingController {
   fetch() {
     return asyncHandler(async (req, res) => {
       try {
-        const response = await ListingModel.find().sort({ createdAt: "desc" }).limit(9);
+        const response = await ListingModel.find()
+          .sort({ createdAt: "desc" })
+          .limit(3)
+          .populate({
+            path: "created_by_user",
+            model: UserModel,
+            select: ["username", "avatar"],
+          });
 
-        if (!response) {
+        if (response.length === 0) {
           return res.status(404).json({
             not_found: "Listing tidak ditemukan!",
           });
         }
 
         res.status(200).json(response);
-
         return;
       } catch (error) {
         throw new Error(error.message);
@@ -125,7 +132,11 @@ export default class listingController {
   fetchDetails() {
     return asyncHandler(async (req, res) => {
       try {
-        const response = await ListingModel.findById(req.params.id);
+        const response = await ListingModel.findById(req.params.id).populate({
+          path: "created_by_user",
+          model: UserModel,
+          select: ["username", "avatar"],
+        });
         res.status(200).json(response);
 
         return;
@@ -141,9 +152,14 @@ export default class listingController {
         const { id } = req.params;
         const response = await ListingModel.find({ _id: { $ne: id } })
           .sort({ createdAt: "desc" })
-          .limit(9);
+          .limit(9)
+          .populate({
+            path: "created_by_user",
+            model: UserModel,
+            select: ["username", "avatar"],
+          });
 
-        if (!response) {
+        if (response.length === 0) {
           return res.status(404).json({
             not_found: "Listing tidak ditemukan!",
           });
@@ -162,40 +178,53 @@ export default class listingController {
         const limit = parseInt(req.query.limit) || 9;
         const startIndex = parseInt(req.query.startIndex) || 0;
 
+        // FALSE NYA TIPE STRING DI KARENAKAN FRONT-END MENGUBAH SEARCH QUERYNYA JADI STRING
+        // SEHINGGA BOOLEAN NYA KE CONVERT JADI STRING UNTUK REQUEST API KE SERVER
         let offer = req.query.offer;
-        if (offer === undefined || offer === false) {
+        if (offer === undefined || offer === "false") {
           offer = { $in: [false, true] };
         }
 
         let furnished = req.query.furnished;
-        if (furnished === undefined || furnished === false) {
+        if (furnished === undefined || furnished === "false") {
           furnished = { $in: [false, true] };
         }
 
         let parking = req.query.parking;
-        if (parking === undefined || parking === false) {
+        if (parking === undefined || parking === "false") {
           parking = { $in: [false, true] };
         }
 
         let types = req.query.types;
-        if (types === undefined || types === "all") {
+        if (types === undefined || types === "false") {
           types = { $in: ["Jual", "Sewa"] };
         }
 
+        let lot = req.query.lot;
+        if (lot === undefined || lot === "false") {
+          lot = { $in: ["Rumah", "Apartemen"] };
+        }
+
         const searchTerm = req.query.searchTerm || "";
-        const sort = req.query.sort || "CreatedAt";
+        const sort = req.query.sort || "createdAt";
         const order = req.query.order || "desc";
 
         const listings = await ListingModel.find({
-          name: { $regex: searchTerm, $options: "i" },
+          name: { $regex: searchTerm, $options: "i" }, // MENGABAIKAN HURUF BESAR & KECIL
           offer,
           furnished,
           parking,
           types,
+          lot,
         })
           .sort({ [sort]: order })
           .limit(limit)
-          .skip(startIndex);
+          .skip(startIndex)
+          .populate({
+            path: "created_by_user",
+            model: UserModel,
+            select: ["username", "avatar"],
+          });
 
         return res.status(200).json(listings);
       } catch (error) {

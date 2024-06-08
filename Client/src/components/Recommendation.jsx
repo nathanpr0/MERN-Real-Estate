@@ -13,34 +13,35 @@ Recommendation.propTypes = {
 };
 
 export default function Recommendation({ fetchListing }) {
-  const [listing, setListing] = useState("");
+  const [listing, setListing] = useState([]);
   const [loading, setLoading] = useState(false);
   const [err, setError] = useState(false);
 
-  async function fetchListings() {
-    try {
-      setLoading(true);
-      const response = await axios.get(fetchListing);
-
-      setListing(response.data);
-      setLoading(false);
-
-      return;
-    } catch (error) {
-      setError(true);
-      if (error.response && error.response.status === 404) {
-        console.error(error.response.data);
-      } else {
-        console.error(error.message);
-      }
-
-      return;
-    }
-  }
-
   useEffect(() => {
+    async function fetchListings() {
+      try {
+        setLoading(true);
+        const response = await axios.get(fetchListing);
+
+        setListing(response.data);
+        setLoading(false);
+
+        return;
+      } catch (error) {
+        setLoading(false);
+        setError(true);
+
+        if (error.response && error.response.status === 404) {
+          console.error(error.response.data);
+        } else {
+          console.error(error.message);
+        }
+
+        return;
+      }
+    }
+
     fetchListings();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchListing]);
 
   return (
@@ -52,15 +53,17 @@ export default function Recommendation({ fetchListing }) {
 
         {loading ? (
           <p className="text-sky-600 text-lg text-center font-semibold mb-5">Page is Loading...</p>
-        ) : err ? (
+        ) : !loading && err ? (
           <p className="text-red-600 text-lg text-center font-semibold mb-5">
             Error Response Fetching Listings!
           </p>
-        ) : listing.length < 1 ? (
+        ) : !loading && !err && listing.length === 0 ? (
           <p className="text-green-600 text-lg text-center font-semibold mb-5">
             Mohon maaf Tidak ada penawaran lagi
           </p>
         ) : (
+          !loading &&
+          !err &&
           listing.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 selection:bg-white selection:bg-opacity-80 selection:text-gray-700">
               {listing.map((value) => (
@@ -77,6 +80,19 @@ export default function Recommendation({ fetchListing }) {
 
                   <article className="flex flex-col mb-4 px-5 pt-4 pb-2 h-full">
                     <section>
+                      <div className="inline-flex flex-row items-center gap-2 bg-white rounded-full px-2">
+                        <img
+                          src={value.created_by_user.avatar}
+                          alt="user_avatar"
+                          height={10}
+                          width={20}
+                          className="rounded-full object-cover text-center"
+                        />
+                        <p className="text-gray-700 font-semibold">
+                          {value.created_by_user.username}
+                        </p>
+                      </div>
+
                       <h2 className="text-xl font-bold text-white truncate">{value.name}</h2>
 
                       <p className="text-sm font-semibold bg-white text-gray-700 rounded-md px-2 inline-block mr-2">
@@ -106,7 +122,7 @@ export default function Recommendation({ fetchListing }) {
                       )}
                     </section>
 
-                    <p className="text-sm pt-3 text-white line-clamp-2">{value.description}</p>
+                    <p className="text-sm pt-3 text-white truncate">{value.description}</p>
                   </article>
 
                   <article className="flex justify-end items-center px-5 pb-4">
@@ -153,6 +169,14 @@ export default function Recommendation({ fetchListing }) {
               ))}
             </div>
           )
+        )}
+
+        {!loading && !err && (
+          <Link to={"/search"}>
+            <p className="text-sky-600 hover:text-sky-800 text-center md:text-2xl text-lg font-semibold mt-10">
+              Shows More...
+            </p>
+          </Link>
         )}
       </div>
     </main>
