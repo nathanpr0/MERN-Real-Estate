@@ -3,7 +3,7 @@ import Footer from "../components/Footer.jsx";
 export default function About() {
   return (
     <>
-      <main className="grid grid-cols-1 lg:grid-cols-2 gap-5 py-20 px-4 md:px-6 lg:px-10">
+      <main className="grid grid-cols-1 lg:grid-cols-2 gap-5 py-10 lg:py-20 px-4 md:px-6 lg:px-10">
         <div className="bg-white p-10 max-sm:px-5 rounded-lg shadow-lg shadow-gray-400">
           <h1 className="text-2xl text-gray-700 font-bold mb-2">Tentang HouseDreamer</h1>
 
