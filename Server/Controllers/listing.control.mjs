@@ -135,7 +135,7 @@ export default class listingController {
         const response = await ListingModel.findById(req.params.id).populate({
           path: "created_by_user",
           model: UserModel,
-          select: ["username", "avatar"],
+          select: ["username", "avatar", "email"],
         });
         res.status(200).json(response);
 

@@ -12,7 +12,6 @@ import { app } from "../firebase.js";
 import {
   getAuth,
   createUserWithEmailAndPassword,
-  onAuthStateChanged,
   setPersistence,
   browserLocalPersistence,
 } from "firebase/auth";
@@ -59,9 +58,9 @@ export default function SignUp() {
       dispatch(signStart());
 
       const auth = getAuth(app);
-      let backendResponse;
 
       // HANDLING SIGN UP BACKEND API BEFORE FIREBASE AUTH
+      let backendResponse;
       try {
         backendResponse = await axios.post(
           import.meta.env.VITE_SIGN_UP_API,
@@ -87,20 +86,14 @@ export default function SignUp() {
       }
 
       // FIREBASE HANDLING SIGN UP AUTH
-      await setPersistence(auth, browserLocalPersistence);
       await createUserWithEmailAndPassword(auth, email, password);
+      await setPersistence(auth, browserLocalPersistence);
 
-      // CHECT THE USER IF AUTHENTICATED
-      onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          dispatch(signSuccess(backendResponse.data));
-          toast.success("Account Successfully Created");
-          setLoading(false);
+      dispatch(signSuccess(backendResponse.data));
+      toast.success("Account Successfully Created");
+      setLoading(false);
 
-          navigate("/");
-        }
-      });
-
+      navigate("/");
       return;
     } catch (error) {
       setLoading(false);

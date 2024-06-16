@@ -45,8 +45,8 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50">
-        <div className="relative">
+      <header className="sticky top-0 z-50  ">
+        <div className="relative ">
           <div
             className={`${
               tablet || mobile ? "shadow-none" : "shadow-xl"

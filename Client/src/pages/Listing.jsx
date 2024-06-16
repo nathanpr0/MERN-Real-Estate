@@ -147,11 +147,10 @@ export default function Listing() {
                   {userListing.imagesURL.map((image, index) => (
                     <SwiperSlide key={index}>
                       <div
-                        className="h-[26rem]"
+                        className="h-[32rem]"
                         style={{
                           background: `url(${image}) center no-repeat`,
                           backgroundSize: "cover",
-                          opacity: 0.9,
                         }}
                       ></div>
                     </SwiperSlide>
@@ -257,7 +256,7 @@ export default function Listing() {
             </section>
 
             {/* CONTACT LANDLORD */}
-            {currentUser && userListing.created_by_user !== currentUser._id && (
+            {currentUser && userListing.created_by_user._id !== currentUser._id && (
               <>
                 <button
                   type="button"

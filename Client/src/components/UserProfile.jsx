@@ -50,7 +50,7 @@ export default function UserProfile({ usernameData, emailData, usernameOnChange 
             id="username"
             name="username"
             autoComplete="off"
-            defaultValue={usernameData}
+            value={usernameData}
             onChange={usernameOnChange}
             readOnly={focusInput["username"]}
             ref={inputRefUserName}
@@ -82,7 +82,7 @@ export default function UserProfile({ usernameData, emailData, usernameOnChange 
             id="email"
             name="email"
             autoComplete="off"
-            defaultValue={emailData}
+            value={emailData}
             readOnly={true}
           />
         </div>

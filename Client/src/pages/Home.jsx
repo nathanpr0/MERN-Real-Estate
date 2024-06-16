@@ -1,5 +1,6 @@
 // IMPORT PAGES
 import Recommendation from "../components/Recommendation.jsx";
+import Footer from "../components/Footer.jsx";
 
 export default function Home() {
   const FETCH_LISTING_MAIN = String(import.meta.env.VITE_MAIN_PAGE_LISTING);
@@ -90,6 +91,7 @@ export default function Home() {
         </section>
       </div>
       <Recommendation fetchListing={FETCH_LISTING_MAIN} />;
+      <Footer />
     </>
   );
 }

@@ -27,6 +27,7 @@ export default function Search() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [listing, setListing] = useState([]);
+  const [showMore, setShowMore] = useState(false);
 
   // SEARCH HANDLE CHANGE
   function handleSearchChange(e) {
@@ -71,7 +72,7 @@ export default function Search() {
   function handleSubmit(e) {
     e.preventDefault();
 
-    const urlParams = new URLSearchParams(location.search);
+    const urlParams = new URLSearchParams();
     urlParams.set("searchTerm", searchStatus.searchTerm);
     urlParams.set("types", searchStatus.types);
     urlParams.set("lot", searchStatus.lot);
@@ -111,6 +112,7 @@ export default function Search() {
       orderUrl
     ) {
       setSearchStatus({
+        ...searchStatus,
         searchTerm: searchTermUrl || "",
         types: typesUrl || false,
         lot: lotUrl || false,
@@ -125,14 +127,25 @@ export default function Search() {
     async function fetchListings() {
       try {
         setLoading(true);
+        setShowMore(false);
+
         const searchQuery = urlParams.toString();
         const response = await axios.get(`${import.meta.env.VITE_SEARCH_API}?${searchQuery}`);
 
+        if (response.data.length >= 9) {
+          setShowMore(true);
+        } else {
+          setShowMore(false);
+        }
+
         setListing(response.data);
         setLoading(false);
+
+        return;
       } catch (error) {
         setLoading(false);
         setError(true);
+        console.error(error);
 
         return;
       }
@@ -142,6 +155,37 @@ export default function Search() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
+
+  async function onShowMoreClick(e) {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      setShowMore(false);
+
+      const startIndex = listing.length;
+      const urlParams = new URLSearchParams(location.search);
+
+      urlParams.set("startIndex", startIndex);
+
+      const searchQuery = urlParams.toString();
+      const response = await axios.get(`${import.meta.env.VITE_SEARCH_API}?${searchQuery}`);
+
+      if (response.data.length < 9) {
+        setShowMore(false);
+      }
+
+      setListing((prevListings) => [...prevListings, ...response.data]);
+      setLoading(false);
+
+      return;
+    } catch (error) {
+      setLoading(false);
+      setError(true);
+      console.error(error);
+
+      return;
+    }
+  }
 
   return (
     <>
@@ -175,7 +219,7 @@ export default function Search() {
                 id="sort_order"
                 name="sort_order"
                 className="w-full cursor-pointer shadow-md border-solid border-sky-600 border-2 rounded px-4 py-1 focus:outline-none"
-                defaultValue={"created_at_desc"}
+                value={searchStatus.sort + "_" + searchStatus.order}
                 onChange={handleSearchChange}
               >
                 <option value={"createdAt_desc"}>Latest</option>
@@ -311,7 +355,7 @@ export default function Search() {
         </section>
 
         {/* RIGHT CONTAINER SEARCH RESULT */}
-        <section className="lg:w-[70vw] w-full bg-white rounded-lg shadow-lg shadow-gray-400 py-10 sm:px-10 px-4">
+        <section className="flex flex-col justify-center lg:w-[70vw] w-full bg-white rounded-lg shadow-lg shadow-gray-400 py-10 sm:px-10 px-4">
           {loading ? (
             <h1 className="text-green-600 text-4xl max-sm:text-2xl text-center font-semibold">
               Page Is Loading...
@@ -339,10 +383,10 @@ export default function Search() {
                       key={value._id}
                       className="flex flex-col justify-between bg-sky-700 rounded-3xl text-white shadow-lg shadow-gray-400"
                     >
-                      <figure className="relative bg-black rounded-3xl">
+                      <figure className="bg-black rounded-3xl">
                         <img
                           src={value.imagesURL[0]}
-                          className="relative h-52 w-full object-cover rounded-3xl opacity-60"
+                          className="h-52 w-full object-cover rounded-3xl opacity-90"
                         />
                       </figure>
 
@@ -356,7 +400,7 @@ export default function Search() {
                               width={20}
                               className="rounded-full object-cover text-center"
                             />
-                            <p className="text-gray-700 font-semibold">
+                            <p className="text-gray-700 font-semibold truncate">
                               {value.created_by_user.username}
                             </p>
                           </div>
@@ -437,6 +481,16 @@ export default function Search() {
                 </div>
               </>
             )
+          )}
+
+          {showMore && (
+            <button
+              type="button"
+              onClick={onShowMoreClick}
+              className="text-green-600 hover:underline text-center md:text-2xl text-lg font-semibold mt-10"
+            >
+              Shows More...
+            </button>
           )}
         </section>
       </div>

@@ -1,5 +1,6 @@
 import Swal from "sweetalert2";
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -27,6 +28,7 @@ import {
   deleteUserSuccess,
   deleteUserFailure,
 } from "../app/features/userSlice.js";
+import { persistor } from "../app/store.js";
 
 // COMPONENTS
 import UserProfile from "../components/UserProfile.jsx";
@@ -36,6 +38,7 @@ import UserListing from "../components/UserListing.jsx";
 export default function Profile() {
   // PROFILE INFORMATION
   const { currentUser: currentAccount, loading } = useSelector((state) => state.user);
+  const location = useLocation();
 
   // USER LISTINGS
   const [userListing, setListing] = useState([]);
@@ -170,71 +173,79 @@ export default function Profile() {
 
         // CHECK THE USER ACCOUNT IF REGISTER TO THE FIREBASE AUTH
         // THEN DELETE THE ACCOUNT FROM DATABASE & FIREBASE
-        if (user) {
-          // HAPUS STORAGE USER
-          const imageFileUrls = [];
-          for (let i = 0; i < userListing.length; i++) {
-            const urls = userListing[i].imagesURL;
-            imageFileUrls.push(...urls);
-          }
 
-          // LISTINGS IMAGES
-          for (const imageUrl of imageFileUrls) {
-            const url = new URL(imageUrl);
-            const filePathWithName = decodeURIComponent(
-              url.pathname.substring(url.pathname.lastIndexOf("/") + 1)
-            );
-            const userRefStorage = ref(storage, filePathWithName);
-            await deleteObject(userRefStorage);
-          }
+        // HAPUS STORAGE USER
+        const imageFileUrls = [];
+        for (let i = 0; i < userListing.length; i++) {
+          const urls = userListing[i].imagesURL;
+          imageFileUrls.push(...urls);
+        }
 
-          // PROFILE PICS IMAGES
-          if (formData.avatar) {
-            const urlAvatar = new URL(formData.avatar);
-            const avatarPathWithName = decodeURIComponent(
-              urlAvatar.pathname.substring(urlAvatar.pathname.lastIndexOf("/") + 1)
-            );
-            const avatarRef = ref(storage, avatarPathWithName);
-            await deleteObject(avatarRef);
-          }
+        // LISTINGS IMAGES
+        for (const imageUrl of imageFileUrls) {
+          const url = new URL(imageUrl);
+          const filePathWithName = decodeURIComponent(
+            url.pathname.substring(url.pathname.lastIndexOf("/") + 1)
+          );
+          const userRefStorage = ref(storage, filePathWithName);
+          await deleteObject(userRefStorage);
+        }
 
-          // SESI AUTENTIKASI FIREBASE AUTH DI HENTIKAN DAHULU
-          await signOut(auth);
-          // LANJUT MENGHAPUS DATA USER DARI AUTH FIREBASE
-          await deleteUser(user);
+        // PROFILE PICS IMAGES
+        if (formData.avatar) {
+          const urlAvatar = new URL(formData.avatar);
+          const avatarPathWithName = decodeURIComponent(
+            urlAvatar.pathname.substring(urlAvatar.pathname.lastIndexOf("/") + 1)
+          );
+          const avatarRef = ref(storage, avatarPathWithName);
+          await deleteObject(avatarRef);
+        }
 
+        // MENGHAPUS DATA USER DARI AUTH FIREBASE
+        await deleteUser(user);
+
+        // SESI AUTENTIKASI FIREBASE AUTH DIHENTIKAN
+        await signOut(auth);
+
+        try {
           await axios.delete(import.meta.env.VITE_DELETE_PROFILE + currentAccount._id, {
             withCredentials: true,
           });
+        } catch (error) {
+          if (error.response && error.response.status === 401) {
+            dispatch(deleteUserFailure(error.response.data));
 
-          // DELETE ACCOUNT IS SUCCEED
-          dispatch(deleteUserSuccess());
-          toast.success("Account Is Deleted");
-        } else {
-          throw new Error("Mohon melakukan login Ulang, Server Error!");
+            const { error: errorResponse } = error.response.data;
+            toast.error(errorResponse);
+
+            return;
+          } else if (error.response && error.response.status === 403) {
+            dispatch(deleteUserFailure(error.response.data));
+
+            const { error: errorResponse } = error.response.data;
+            toast.error(errorResponse);
+            return;
+          } else {
+            dispatch(deleteUserFailure(error.message));
+            toast.error(error.message);
+
+            return;
+          }
         }
+
+        // CLEAR REDUX PERSIST STORAGE
+        await persistor.purge();
+
+        // DELETE ACCOUNT IS SUCCEED
+        dispatch(deleteUserSuccess());
+        toast.success("Account Is Deleted");
 
         return;
       } catch (error) {
-        if (error.response && error.response.status === 401) {
-          dispatch(deleteUserFailure(error.response.data));
+        dispatch(deleteUserFailure(error.message));
+        toast.error(error.message);
 
-          const { error: errorResponse } = error.response.data;
-          toast.error(errorResponse);
-
-          return;
-        } else if (error.response && error.response.status === 403) {
-          dispatch(deleteUserFailure(error.response.data));
-
-          const { error: errorResponse } = error.response.data;
-          toast.error(errorResponse);
-          return;
-        } else {
-          dispatch(deleteUserFailure(error.message));
-          toast.error(error.message);
-
-          return;
-        }
+        return;
       }
     }
   }
@@ -248,12 +259,13 @@ export default function Profile() {
 
       // SIGN OUT USER FIREBASE AUTH
       const auth = getAuth(app);
-      if (auth.currentUser) {
-        await signOut(auth);
-      }
+      await signOut(auth);
 
       // SIGN OUT USER FROM DATABASE
       await axios.get(import.meta.env.VITE_SIGN_OUT_API, { withCredentials: true });
+
+      // CLEAR REDUX PERSIST STORAGE
+      await persistor.purge();
 
       dispatch(logOutFinish());
       toast.success("User has been Logged Out!");
@@ -292,6 +304,29 @@ export default function Profile() {
       window.removeEventListener("beforeunload", handleBeforeUnloadImageProfile);
     };
   }, [submitFormProfile, formData.avatar]);
+
+  // DELETE IMAGE IF THE USER LEAVE THE ROUTE || NAVIGATE OTHER ROUTE WITHOUT SUBMIT THE FORM
+  useEffect(() => {
+    const handleImageProfileLocationChange = async () => {
+      if (!submitFormProfile && formData.avatar) {
+        try {
+          const storage = getStorage(app);
+          const url = new URL(formData.avatar);
+          const filePathWithName = decodeURIComponent(
+            url.pathname.substring(url.pathname.lastIndexOf("/") + 1)
+          );
+          const fileRef = ref(storage, filePathWithName);
+          await deleteObject(fileRef);
+        } catch (error) {
+          console.error({ deleteFailed: error.message });
+        }
+      }
+    };
+
+    return () => {
+      handleImageProfileLocationChange();
+    };
+  }, [location, submitFormProfile, formData.avatar]); // LOCATION UNTUK MENDETEKSI LOKASI ROUTER YANG DIGUNAKAN
 
   return (
     <>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -21,6 +22,8 @@ import { app } from "../firebase";
 
 export default function CreateListing() {
   const { currentUser: currentAccount } = useSelector((state) => state.user);
+  const location = useLocation();
+
   const [loading, setLoading] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formData, setFormData] = useState({
@@ -213,6 +216,7 @@ export default function CreateListing() {
     function handleBeforeUnload(event) {
       if (!formSubmitted) {
         event.preventDefault();
+
         formData.imagesURL.forEach((value, i) => {
           handleDeleteImage(i, value);
         });
@@ -228,6 +232,23 @@ export default function CreateListing() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.imagesURL, formSubmitted]);
+
+  // DELETE IMAGE IF THE USER LEAVE THE ROUTE || NAVIGATE OTHER ROUTE WITHOUT SUBMIT THE FORM
+  useEffect(() => {
+    const handleLocationChange = () => {
+      if (!formSubmitted) {
+        formData.imagesURL.forEach((value, i) => {
+          handleDeleteImage(i, value);
+        });
+      }
+    };
+
+    return () => {
+      handleLocationChange();
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location, formData.imagesURL, formSubmitted]); // LOCATION UNTUK MENDETEKSI LOKASI ROUTER YANG DIGUNAKAN
 
   return (
     <>

@@ -13,7 +13,7 @@ export default function Contact({ landLord_listing, stateLandLord, actionLandLor
     async function getContact() {
       try {
         const response = await axios.get(
-          import.meta.env.VITE_GET_CONTACT + landLord_listing.created_by_user,
+          import.meta.env.VITE_GET_CONTACT + landLord_listing.created_by_user._id,
           {
             withCredentials: true,
           }

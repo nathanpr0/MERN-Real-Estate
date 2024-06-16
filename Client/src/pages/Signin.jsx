@@ -12,7 +12,7 @@ import OAuth from "../components/OAuth.jsx";
 
 // IMPORT FIREBASE AUTH
 import { app } from "../firebase.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -82,22 +82,20 @@ export default function SignIn() {
           //  JIKA AUTHENTICATION BACKEND SUKSES LANJUT KE FIREBASE AUTH
           await signInWithEmailAndPassword(auth, value.email, value.password);
 
-          onAuthStateChanged(auth, async (user) => {
-            if (user) {
-              // Jika berhasil login ke Firebase, gunakan respons dari backend
-              toast.success("Account Successfully Log In");
-              dispatch(signSuccess(backendResponse.data));
-              setLoading(false);
+          toast.success("Account Successfully Log In");
+          dispatch(signSuccess(backendResponse.data));
+          setLoading(false);
 
-              navigate("/");
-            }
-          });
+          navigate("/");
+          return;
         } catch (error) {
           setLoading(false);
 
           // Tangani error lainnya
           dispatch(signFailure(error.message));
           toast.error(error.message);
+
+          return;
         }
     }
   }

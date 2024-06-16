@@ -46,7 +46,7 @@ export default function Recommendation({ fetchListing }) {
 
   return (
     <main className="w-full p-14 max-lg:px-5 max-sm:px-3">
-      <div className="bg-white p-10 max-sm:px-5 rounded-lg shadow-lg shadow-gray-400">
+      <div className="flex flex-col justify-center bg-white p-10 max-sm:px-5 rounded-lg shadow-lg shadow-gray-400">
         <h1 className="text-4xl max-sm:text-2xl text-gray-700 text-center font-semibold mb-10">
           Recommendation
         </h1>
@@ -71,10 +71,10 @@ export default function Recommendation({ fetchListing }) {
                   key={value._id}
                   className="flex flex-col justify-between bg-sky-700 rounded-3xl text-white shadow-lg shadow-gray-400"
                 >
-                  <figure className="relative bg-black rounded-3xl">
+                  <figure className="bg-black rounded-3xl">
                     <img
                       src={value.imagesURL[0]}
-                      className="relative h-52 w-full object-cover rounded-3xl opacity-70"
+                      className="h-52 w-full object-cover rounded-3xl opacity-90"
                     />
                   </figure>
 
@@ -88,7 +88,7 @@ export default function Recommendation({ fetchListing }) {
                           width={20}
                           className="rounded-full object-cover text-center"
                         />
-                        <p className="text-gray-700 font-semibold">
+                        <p className="text-gray-700 font-semibold truncate">
                           {value.created_by_user.username}
                         </p>
                       </div>
@@ -172,11 +172,12 @@ export default function Recommendation({ fetchListing }) {
         )}
 
         {!loading && !err && (
-          <Link to={"/search"}>
-            <p className="text-sky-600 hover:text-sky-800 text-center md:text-2xl text-lg font-semibold mt-10">
-              Shows More...
-            </p>
-          </Link>
+          <button
+            type="button"
+            className="text-sky-600 hover:underline text-center md:text-2xl text-lg font-semibold mt-10"
+          >
+            <Link to={"/search"}>Shows More...</Link>
+          </button>
         )}
       </div>
     </main>
