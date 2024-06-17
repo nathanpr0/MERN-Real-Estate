@@ -121,6 +121,8 @@ export default function UpdateListing() {
   const handleImagesUpload = (e) => {
     e.preventDefault();
 
+    // IMAGES = GAMBAR BARU
+    // FORMDATA["imagesURL"] = GAMBAR LAMA
     if (images.length > 0 && images.length + formData["imagesURL"].length < 7) {
       setUploading(true);
       setImageUploadError(false);
