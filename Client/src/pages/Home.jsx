@@ -7,7 +7,16 @@ export default function Home() {
 
   return (
     <>
-      <div className="banner h-screen selection:bg-white selection:bg-opacity-80 selection:text-gray-700">
+      <div
+        className="h-screen selection:bg-white selection:bg-opacity-80 selection:text-gray-700"
+        style={{
+          background: `linear-gradient(90deg, rgb(3, 106, 161), rgba(3, 105, 161, 0.7), rgba(3, 105, 161, 0.8), rgb(3, 106, 161)),
+                      url("Banner.webp")`,
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         {/* LEFT CONTAINER */}
         <section className="w-2/4 max-lg:w-full max-lg:text-center h-full flex flex-col justify-center float-left p-10">
           <h1 className="text-6xl max-lg:text-5xl max-md:text-6xl max-sm:text-5xl font-bold mb-4 text-white">

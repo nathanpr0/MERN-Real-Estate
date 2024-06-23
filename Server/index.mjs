@@ -67,15 +67,13 @@ const database = (url) => {
       console.log(`Server Running on http://localhost:${PORT}`);
     });
   } catch (error) {
-    console.error("Connection Failed," + error.message);
+    console.log("Connection Failed," + error.message);
   }
 };
 
-database(async (stringConnect) => {
-  try {
-    await mongoose.connect(stringConnect);
-    console.log("Connect To Database");
-  } catch (err) {
-    console.log(err);
-  }
+database((stringConnect) => {
+  mongoose
+    .connect(stringConnect)
+    .then(() => console.log("Connect To Database"))
+    .catch((err) => console.log(err));
 });

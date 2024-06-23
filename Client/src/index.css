@@ -27,18 +27,3 @@ input[type="search"]::-webkit-search-cancel-button {
   background-color: rgb(2 132 199);
   opacity: 1;
 }
-
-/* MAIN BANNER IMAGE */
-.banner {
-  background: linear-gradient(
-      90deg,
-      rgb(3, 106, 161),
-      rgba(3, 105, 161, 0.7),
-      rgba(3, 105, 161, 0.8),
-      rgb(3, 106, 161)
-    ),
-    url("Banner.webp");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-}
