@@ -43,9 +43,9 @@ app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
 
 // CREATE DIST FOLDER IN CLIENT SIDE TO DEPLOY THE PROJECT
-app.use(express.static(path.join(_dirname, "/client/dist")));
+app.use(express.static(path.join(_dirname, "/Client/dist")));
 app.get("*", (req, res) => {
-  res.sendFile(path.join(_dirname, "client", "dist", "index.html"));
+  res.sendFile(path.join(_dirname, "Client", "dist", "index.html"));
 });
 
 // ERROR MIDDLEWARE
