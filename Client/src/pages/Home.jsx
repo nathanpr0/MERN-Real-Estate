@@ -99,7 +99,7 @@ export default function Home() {
           <img src="elevee.webp" alt="elevee.logo" className="h-16 max-sm:h-12" loading="eager" />
         </section>
       </div>
-      <Recommendation fetchListing={FETCH_LISTING_MAIN} />;
+      <Recommendation fetchListing={FETCH_LISTING_MAIN} />
       <Footer />
     </>
   );
