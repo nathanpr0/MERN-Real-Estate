@@ -5,8 +5,7 @@
   "main": "index.mjs",
   "scripts": {
     "start": "node ./Server/index.mjs",
-    "server": "nodemon ./Server/index.mjs",
-    "build": "npm install && npm install --prefix Client && npm run build --prefix Client"
+    "server": "nodemon ./Server/index.mjs"
   },
   "keywords": [],
   "author": "",
