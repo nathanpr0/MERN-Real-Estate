@@ -124,15 +124,25 @@ export default function Listing() {
 
   return (
     <>
-      {loading ? (
-        <p className="text-sky-600 text-lg text-center font-semibold mb-5">Page is Loading...</p>
-      ) : pageError ? (
-        <p className="text-red-600 text-lg text-center font-semibold mb-5">
-          Page is Error something is Wrong!
-        </p>
-      ) : (
-        userListing && (
-          <main className="flex flex-col gap-14 max-sm:m-0 px-14 max-lg:px-5 max-sm:px-3 py-10">
+      <div className="flex flex-col gap-14 max-sm:m-0 px-14 max-lg:px-5 max-sm:px-3 py-10">
+        {loading ? (
+          <p
+            className="bg-white rounded-lg shadow-lg shadow-gray-400 w-2/4 p-2 mx-auto
+                      text-sky-600 text-lg text-center font-semibold mb-5"
+          >
+            Page is Loading...
+          </p>
+        ) : !loading && pageError ? (
+          <p
+            className="bg-white rounded-lg shadow-lg shadow-gray-400 w-2/4 p-2 mx-auto
+                      text-red-600 text-lg text-center font-semibold mb-5"
+          >
+            Page is Error something is Wrong!
+          </p>
+        ) : (
+          !loading &&
+          !pageError &&
+          userListing && (
             <section className="flex max-lg:flex-col justify-between bg-white rounded-lg shadow-lg shadow-gray-400">
               {/* IMAGES SLIDER */}
               <figure className="w-1/2 bg-black max-lg:w-full">
@@ -254,56 +264,56 @@ export default function Listing() {
                 </div>
               </article>
             </section>
+          )
+        )}
 
-            {/* CONTACT LANDLORD */}
-            {currentUser && userListing.created_by_user._id !== currentUser._id && (
-              <>
-                <button
-                  type="button"
-                  onClick={toggleContactForm}
-                  className="fixed bottom-5 right-12 bg-sky-600 text-white p-3 rounded-full shadow-lg z-50"
-                >
-                  {isContactFormVisible ? <FaTimes size={20} /> : <FaEnvelope size={20} />}
-                </button>
-                {isContactFormVisible && (
-                  <section className="fixed bottom-20 right-20 bg-white rounded-lg shadow-lg shadow-gray-400 p-6 z-50 w-80">
-                    <h3 className="text-xl font-semibold text-center mb-4">Contact Landlord</h3>
+        {/* CONTACT LANDLORD */}
+        {currentUser && userListing.created_by_user._id !== currentUser._id && (
+          <>
+            <button
+              type="button"
+              onClick={toggleContactForm}
+              className="fixed bottom-5 right-12 bg-sky-600 text-white p-3 rounded-full shadow-lg z-50"
+            >
+              {isContactFormVisible ? <FaTimes size={20} /> : <FaEnvelope size={20} />}
+            </button>
+            {isContactFormVisible && (
+              <section className="fixed bottom-20 right-20 bg-white rounded-lg shadow-lg shadow-gray-400 p-6 z-50 w-80">
+                <h3 className="text-xl font-semibold text-center mb-4">Contact Landlord</h3>
 
-                    <form method="post" className="flex flex-col gap-4" onSubmit={sendEmail}>
-                      <Contact
-                        landLord_listing={userListing}
-                        stateLandLord={landLord}
-                        actionLandLord={setLandLord}
-                      />
+                <form method="post" className="flex flex-col gap-4" onSubmit={sendEmail}>
+                  <Contact
+                    landLord_listing={userListing}
+                    stateLandLord={landLord}
+                    actionLandLord={setLandLord}
+                  />
 
-                      <label className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-700 mb-2">Message</span>
-                        <textarea
-                          id="message"
-                          name="message"
-                          value={message}
-                          onChange={(e) => setMessage(e.target.value)}
-                          className="shadow-md border-solid border-sky-600 border-2 rounded p-2 focus:outline-sky-800"
-                          rows={5}
-                          placeholder="Enter your message here..."
-                          required
-                        ></textarea>
-                      </label>
+                  <label className="flex flex-col">
+                    <span className="text-sm font-medium text-gray-700 mb-2">Message</span>
+                    <textarea
+                      id="message"
+                      name="message"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      className="shadow-md border-solid border-sky-600 border-2 rounded p-2 focus:outline-sky-800"
+                      rows={5}
+                      placeholder="Enter your message here..."
+                      required
+                    ></textarea>
+                  </label>
 
-                      <button
-                        type="submit"
-                        className="bg-sky-600 text-white text-center rounded-md p-2 font-semibold hover:bg-sky-700 transition-all"
-                      >
-                        {loadingMessage ? "Loading..." : "Send Message"}
-                      </button>
-                    </form>
-                  </section>
-                )}
-              </>
+                  <button
+                    type="submit"
+                    className="bg-sky-600 text-white text-center rounded-md p-2 font-semibold hover:bg-sky-700 transition-all"
+                  >
+                    {loadingMessage ? "Loading..." : "Send Message"}
+                  </button>
+                </form>
+              </section>
             )}
-          </main>
-        )
-      )}
+          </>
+        )}
+      </div>
 
       <Recommendation fetchListing={import.meta.env.VITE_MAIN_RECOMMEND_LISTING + listingid} />
     </>
